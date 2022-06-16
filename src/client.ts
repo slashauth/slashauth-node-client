@@ -1,6 +1,6 @@
 import * as rm from 'typed-rest-client';
 import { Config, PROD_ENDPOINT } from './config';
-import { HasRoleAPIResponse, HasRoleArguments } from './global';
+import { DecodedToken, HasRoleAPIResponse, HasRoleArguments, ValidateTokenAPIResponse, ValidateTokenArguments, ValidateTokenResponse } from './global';
 import { signQuery } from './query';
 
 export class SlashauthClient {
@@ -45,5 +45,41 @@ export class SlashauthClient {
         },
       }
     );
+  }
+
+  async validateToken({
+    token,
+  }: ValidateTokenArguments): Promise<ValidateTokenResponse> {
+    const resp =  this.apiClient.get<ValidateTokenAPIResponse>(
+      `/validate_token`,
+      {
+        queryParameters: {
+          params: {
+            client_id: this.client_id,
+            token,
+          },
+        },
+      }
+    );
+
+    if (!resp) {
+      throw new Error("token is not valid")
+    }
+
+    const encodedClaims = token.split('.')[1];
+
+    if (!encodedClaims) {
+      throw new SyntaxError('malformed token');
+    }
+
+    const decodedClaims = JSON.parse(atob(encodedClaims)) as DecodedToken;
+
+    return {
+      address: decodedClaims.sub,
+      clientID: decodedClaims.client_id,
+      issuedAt: decodedClaims.iat,
+      expiresAt: decodedClaims.exp,
+      issuer: decodedClaims.iss,
+    }
   }
 }

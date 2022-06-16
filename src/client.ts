@@ -36,10 +36,12 @@ export class SlashauthClient {
     address,
     role,
   }: HasRoleArguments): Promise<rm.IRestResponse<HasRoleAPIResponse>> {
+    const encodedRole = Buffer.from(role, 'utf8').toString('base64');
+
     const urlParams = signQuery({
       query: {
         address,
-        role,
+        encodedRole,
       },
       secret: this.client_secret,
     });

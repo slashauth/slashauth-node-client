@@ -15,11 +15,11 @@ export type HasRoleAPIResponse = {
 
 export type ValidateTokenArguments = {
   token: string;
-}
+};
 
 export type ValidateTokenAPIResponse = {
   isValid: boolean;
-}
+};
 
 export type ValidateTokenResponse = {
   address: string;
@@ -27,7 +27,8 @@ export type ValidateTokenResponse = {
   issuedAt: number;
   expiresAt: number;
   issuer: string;
-}
+  walletType: string;
+};
 
 export type DecodedToken = {
   type: string;
@@ -37,4 +38,5 @@ export type DecodedToken = {
   exp: number;
   iss: string;
   sub: string;
+  wallet_type: string;
 };

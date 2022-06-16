@@ -88,6 +88,7 @@ export class SlashauthClient {
         issuedAt: decodedClaims.iat,
         expiresAt: decodedClaims.exp,
         issuer: decodedClaims.iss,
+        walletType: decodedClaims.wallet_type,
       };
     } catch (err) {
       throw err;

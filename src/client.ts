@@ -41,7 +41,8 @@ export class SlashauthClient {
     const urlParams = signQuery({
       query: {
         address,
-        encodedRole,
+        role: encodedRole,
+        encoded: 'true',
       },
       secret: this.client_secret,
     });

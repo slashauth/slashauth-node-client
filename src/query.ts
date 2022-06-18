@@ -1,15 +1,18 @@
 import { createHmac } from 'crypto';
-import { GetQueryStringSignatureOptions } from './global';
+import {
+  GetQueryStringSignatureOptions,
+  PostBodySignatureOptions,
+} from './global';
 
 export const signQuery = ({
-  query,
+  input,
   secret,
   nonce,
 }: GetQueryStringSignatureOptions): { [key: string]: string } => {
   const params = new URLSearchParams();
 
-  for (const k of Object.keys(query)) {
-    params.append(k, query[k]);
+  for (const k of Object.keys(input)) {
+    params.append(k, input[k]);
   }
 
   if (params.get('nonce')) {
@@ -34,4 +37,37 @@ export const signQuery = ({
   }
 
   return response;
+};
+
+export const signBody = ({
+  input,
+  secret,
+  nonce,
+}: PostBodySignatureOptions): { [key: string]: string } => {
+  const params: { [key: string]: string } = {};
+
+  for (const k of Object.keys(input)) {
+    if (k === 'nonce') {
+      continue;
+    }
+    params[k] = input[k];
+  }
+
+  if (nonce) {
+    params['nonce'] = nonce;
+  } else {
+    params['nonce'] = `${Date.now()}`;
+  }
+
+  const ordered = Object.keys(params)
+    .sort()
+    .reduce((obj: { [key: string]: string }, key: string) => {
+      obj[key] = params[key];
+      return obj;
+    }, {});
+
+  const hmac = createHmac('sha256', secret);
+  params['sig'] = hmac.update(JSON.stringify(ordered)).digest('hex');
+
+  return params;
 };

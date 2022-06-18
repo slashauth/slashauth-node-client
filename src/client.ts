@@ -1,14 +1,22 @@
 import * as rm from 'typed-rest-client';
 import { Config, PROD_ENDPOINT } from './config';
 import {
+  AddRoleRequirementOrganizationArguments,
+  AddWalletToRoleOrganizationArguments,
   DecodedToken,
+  DeleteRoleFromWalletOrganizationArguments,
+  DeleteRoleRequirementOrganizationArguments,
   HasRoleAPIResponse,
   HasRoleArguments,
+  CreateOrganizationAPIResponse,
+  PostOrganizationArguments,
+  RoleRequirementAPIResponse,
   ValidateTokenAPIResponse,
   ValidateTokenArguments,
   ValidateTokenResponse,
+  WalletRoleAPIResponse,
 } from './global';
-import { signQuery } from './query';
+import { signQuery, signBody } from './query';
 
 export class SlashauthClient {
   identifier: string;
@@ -39,7 +47,7 @@ export class SlashauthClient {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = signQuery({
-      query: {
+      input: {
         address,
         role: encodedRole,
         encoded: 'true',
@@ -96,5 +104,133 @@ export class SlashauthClient {
     } catch (err) {
       throw err;
     }
+  }
+
+  async createOrganization({
+    name,
+    description,
+  }: PostOrganizationArguments): Promise<
+    rm.IRestResponse<CreateOrganizationAPIResponse>
+  > {
+    const body = signBody({
+      input: {
+        name,
+        description: description || '',
+      },
+      secret: this.client_secret,
+    });
+
+    return await this.apiClient.create<CreateOrganizationAPIResponse>(
+      `/s/${this.client_id}/organizations`,
+      body
+    );
+  }
+
+  async addRoleRequirementForOrganization({
+    organizationID,
+    contract,
+    contractType,
+    quantity,
+    chainID,
+    tokenTypeID,
+    role,
+    accessToken,
+  }: AddRoleRequirementOrganizationArguments): Promise<
+    rm.IRestResponse<RoleRequirementAPIResponse>
+  > {
+    const body = signBody({
+      input: {
+        contract,
+        contractType,
+        quantity,
+        chainID,
+        tokenTypeID,
+        role,
+        accessToken,
+      },
+      secret: this.client_secret,
+    });
+
+    return await this.apiClient.create<RoleRequirementAPIResponse>(
+      `/s/${this.client_id}/${organizationID}/role_requirement`,
+      body
+    );
+  }
+
+  async addWalletToRoleForOrganization({
+    organizationID,
+    wallet,
+    role,
+    accessToken,
+  }: AddWalletToRoleOrganizationArguments): Promise<
+    rm.IRestResponse<WalletRoleAPIResponse>
+  > {
+    const body = signBody({
+      input: {
+        wallet,
+        role,
+        accessToken,
+      },
+      secret: this.client_secret,
+    });
+
+    return await this.apiClient.create<WalletRoleAPIResponse>(
+      `/s/${this.client_id}/${organizationID}/wallet_role`,
+      body
+    );
+  }
+
+  async deleteRoleRequirementForOrganization({
+    organizationID,
+    roleID,
+    accessToken,
+  }: DeleteRoleRequirementOrganizationArguments): Promise<
+    rm.IRestResponse<RoleRequirementAPIResponse>
+  > {
+    const urlParams = signQuery({
+      input: {
+        roleID,
+        accessToken,
+      },
+      secret: this.client_secret,
+    });
+
+    return await this.apiClient.del<RoleRequirementAPIResponse>(
+      `/s/${this.client_id}/${organizationID}/role_requirement`,
+      {
+        queryParameters: {
+          params: urlParams,
+        },
+      }
+    );
+  }
+
+  async deleteRoleFromWalletForOrganization({
+    organizationID,
+    wallet,
+    role,
+    accessToken,
+  }: DeleteRoleFromWalletOrganizationArguments): Promise<
+    rm.IRestResponse<WalletRoleAPIResponse>
+  > {
+    const encodedRole = Buffer.from(role, 'utf8').toString('base64');
+
+    const urlParams = signQuery({
+      input: {
+        wallet,
+        role: encodedRole,
+        accessToken,
+      },
+      secret: this.client_secret,
+    });
+
+    return await this.apiClient.del<WalletRoleAPIResponse>(
+      `/s/${this.client_id}/${organizationID}/wallet_role`,
+      {
+        queryParameters: {
+          params: urlParams,
+        },
+      }
+    );
   }
 }

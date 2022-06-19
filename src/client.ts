@@ -134,6 +134,7 @@ export class SlashauthClient {
   }
 
   async createOrganization({
+    adminAddress,
     name,
     description,
   }: PostOrganizationArguments): Promise<
@@ -141,6 +142,7 @@ export class SlashauthClient {
   > {
     const body = signBody({
       input: {
+        adminAddress,
         name,
         description: description || '',
       },

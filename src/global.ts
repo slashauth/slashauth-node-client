@@ -54,6 +54,7 @@ export type DecodedToken = {
 };
 
 export type PostOrganizationArguments = {
+  adminAddress: string;
   name: string;
   description?: string;
 };

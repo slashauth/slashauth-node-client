@@ -15,6 +15,12 @@ export type HasRoleArguments = {
   role: string;
 };
 
+export type HasOrgRoleArguments = {
+  organizationID: string;
+  address: string;
+  role: string;
+};
+
 export type HasRoleAPIResponse = {
   hasRole: boolean;
 };

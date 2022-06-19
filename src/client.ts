@@ -15,6 +15,7 @@ import {
   ValidateTokenArguments,
   ValidateTokenResponse,
   WalletRoleAPIResponse,
+  HasOrgRoleArguments,
 } from './global';
 import { signQuery, signBody } from './query';
 
@@ -57,6 +58,32 @@ export class SlashauthClient {
 
     return this.apiClient.get<HasRoleAPIResponse>(
       `/s/${this.client_id}/has_role`,
+      {
+        queryParameters: {
+          params: urlParams,
+        },
+      }
+    );
+  }
+
+  async hasOrgRole({
+    organizationID,
+    address,
+    role,
+  }: HasOrgRoleArguments): Promise<rm.IRestResponse<HasRoleAPIResponse>> {
+    const encodedRole = Buffer.from(role, 'utf8').toString('base64');
+
+    const urlParams = signQuery({
+      input: {
+        address,
+        role: encodedRole,
+        encoded: 'true',
+      },
+      secret: this.client_secret,
+    });
+
+    return this.apiClient.get<HasRoleAPIResponse>(
+      `/s/${this.client_id}/${organizationID}/has_role`,
       {
         queryParameters: {
           params: urlParams,

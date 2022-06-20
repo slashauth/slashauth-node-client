@@ -18,6 +18,7 @@ import {
   HasOrgRoleArguments,
 } from './global';
 import { signQuery, signBody } from './query';
+import { base64Decode } from './utils/strings';
 
 export class SlashauthClient {
   identifier: string;
@@ -118,7 +119,9 @@ export class SlashauthClient {
         throw new SyntaxError('malformed token');
       }
 
-      const decodedClaims = JSON.parse(atob(encodedClaims)) as DecodedToken;
+      const decodedClaims = JSON.parse(
+        base64Decode(encodedClaims)
+      ) as DecodedToken;
 
       return {
         address: decodedClaims.sub,

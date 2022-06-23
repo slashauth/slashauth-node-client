@@ -44,3 +44,18 @@ slashauthClient
   .then((response) => console.log('has role? ', r.result.hasRole))
   .catch((e) => console.error(e));
 ```
+
+Use the client to validate a user's token. This endpoint will return a 403 for invalid tokens:
+
+```ts
+slashauthClient
+  .validateToken({
+    token: 'eyJhbGciOiJSUzI1NiI...R814nN5izqQ-y1OzgNUXSDfF3d1rWjloZ3sw',
+  })
+  .then((response) => {
+    console.log('clientID: ', r.clientID);
+    console.log('address: ', r.address);
+    console.log('expiresAt: ', r.expiresAt);
+  })
+  .catch((e) => console.error(e));
+```

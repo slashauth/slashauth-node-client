@@ -53,9 +53,11 @@ slashauthClient
     token: 'eyJhbGciOiJSUzI1NiI...R814nN5izqQ-y1OzgNUXSDfF3d1rWjloZ3sw',
   })
   .then((response) => {
-    console.log('clientID: ', r.clientID);
-    console.log('address: ', r.address);
-    console.log('expiresAt: ', r.expiresAt);
+    console.log({
+      clientID: r.clientID,
+      address: r.address,
+      expiresAt: r.expiresAt,
+    })
   })
   .catch((e) => console.error(e));
 ```

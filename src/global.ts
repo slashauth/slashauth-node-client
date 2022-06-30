@@ -1,3 +1,7 @@
+type MaybeStringInput = {
+  input?: string;
+};
+
 export type GetQueryStringSignatureOptions = {
   input: { [key: string]: string };
   secret: string;
@@ -54,12 +58,19 @@ export type DecodedToken = {
 };
 
 export type PostOrganizationArguments = {
-  adminAddress: string;
   name: string;
   description?: string;
+  accessToken: string;
 };
 
-export type CreateOrganizationAPIResponse = {
+export type PutOrganizationArguments = {
+  organizationID: string;
+  name: MaybeStringInput;
+  description?: MaybeStringInput;
+  accessToken: string;
+};
+
+export type UpsertOrganizationAPIResponse = {
   organizationID: string;
   clientID: string;
   name: string;

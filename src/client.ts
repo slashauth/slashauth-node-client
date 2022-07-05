@@ -8,7 +8,7 @@ import {
   DeleteRoleRequirementOrganizationArguments,
   HasRoleAPIResponse,
   HasRoleArguments,
-  CreateOrganizationAPIResponse,
+  UpsertOrganizationAPIResponse,
   PostOrganizationArguments,
   RoleRequirementAPIResponse,
   ValidateTokenAPIResponse,
@@ -16,6 +16,7 @@ import {
   ValidateTokenResponse,
   WalletRoleAPIResponse,
   HasOrgRoleArguments,
+  PutOrganizationArguments,
 } from './global';
 import { signQuery, signBody } from './query';
 import { base64Decode } from './utils/strings';
@@ -137,23 +138,46 @@ export class SlashauthClient {
   }
 
   async createOrganization({
-    adminAddress,
     name,
     description,
+    accessToken,
   }: PostOrganizationArguments): Promise<
-    rm.IRestResponse<CreateOrganizationAPIResponse>
+    rm.IRestResponse<UpsertOrganizationAPIResponse>
   > {
     const body = signBody({
       input: {
-        adminAddress,
+        accessToken,
         name,
         description: description || '',
       },
       secret: this.client_secret,
     });
 
-    return await this.apiClient.create<CreateOrganizationAPIResponse>(
+    return await this.apiClient.create<UpsertOrganizationAPIResponse>(
       `/s/${this.client_id}/organizations`,
+      body
+    );
+  }
+
+  async updateOrganization({
+    organizationID,
+    name,
+    description,
+    accessToken,
+  }: PutOrganizationArguments): Promise<
+    rm.IRestResponse<UpsertOrganizationAPIResponse>
+  > {
+    const body = signBody({
+      input: {
+        accessToken,
+        name,
+        description: description || '',
+      },
+      secret: this.client_secret,
+    });
+
+    return await this.apiClient.replace<UpsertOrganizationAPIResponse>(
+      `/s/${this.client_id}/${organizationID}`,
       body
     );
   }

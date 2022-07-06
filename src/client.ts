@@ -85,7 +85,7 @@ export class SlashauthClient {
     });
 
     return this.apiClient.get<HasRoleAPIResponse>(
-      `/s/${this.client_id}/${organizationID}/has_role`,
+      `/s/${this.client_id}/organizations/${organizationID}/has_role`,
       {
         queryParameters: {
           params: urlParams,
@@ -177,7 +177,7 @@ export class SlashauthClient {
     });
 
     return await this.apiClient.replace<UpsertOrganizationAPIResponse>(
-      `/s/${this.client_id}/${organizationID}`,
+      `/s/${this.client_id}/organizations/${organizationID}`,
       body
     );
   }
@@ -208,7 +208,7 @@ export class SlashauthClient {
     });
 
     return await this.apiClient.create<RoleRequirementAPIResponse>(
-      `/s/${this.client_id}/${organizationID}/role_requirement`,
+      `/s/${this.client_id}/organizations/${organizationID}/role_requirement`,
       body
     );
   }
@@ -231,7 +231,7 @@ export class SlashauthClient {
     });
 
     return await this.apiClient.create<WalletRoleAPIResponse>(
-      `/s/${this.client_id}/${organizationID}/wallet_role`,
+      `/s/${this.client_id}/organizations/${organizationID}/wallet_role`,
       body
     );
   }
@@ -252,7 +252,7 @@ export class SlashauthClient {
     });
 
     return await this.apiClient.del<RoleRequirementAPIResponse>(
-      `/s/${this.client_id}/${organizationID}/role_requirement`,
+      `/s/${this.client_id}/organizations/${organizationID}/role_requirement`,
       {
         queryParameters: {
           params: urlParams,
@@ -281,7 +281,7 @@ export class SlashauthClient {
     });
 
     return await this.apiClient.del<WalletRoleAPIResponse>(
-      `/s/${this.client_id}/${organizationID}/wallet_role`,
+      `/s/${this.client_id}/organizations/${organizationID}/wallet_role`,
       {
         queryParameters: {
           params: urlParams,

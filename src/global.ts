@@ -29,6 +29,21 @@ export type HasRoleAPIResponse = {
   hasRole: boolean;
 };
 
+export type GetOrgMembershipsForUserArguments = {
+  userID: string;
+};
+
+export type GetOrgMembershipsForUserAPIResponse = {
+  data: [
+    {
+      clientID: string;
+      organizationID: string;
+      userID: string;
+      roles: string[];
+    }
+  ];
+};
+
 export type ValidateTokenArguments = {
   token: string;
 };

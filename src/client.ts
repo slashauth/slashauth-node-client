@@ -17,6 +17,8 @@ import {
   WalletRoleAPIResponse,
   HasOrgRoleArguments,
   PutOrganizationArguments,
+  GetOrgMembershipsForUserArguments,
+  GetOrgMembershipsForUserAPIResponse,
 } from './global';
 import { signQuery, signBody } from './query';
 import { base64Decode } from './utils/strings';
@@ -86,6 +88,28 @@ export class SlashauthClient {
 
     return this.apiClient.get<HasRoleAPIResponse>(
       `/s/${this.client_id}/organizations/${organizationID}/has_role`,
+      {
+        queryParameters: {
+          params: urlParams,
+        },
+      }
+    );
+  }
+
+  async getOrgMembershipsForUser({
+    userID,
+  }: GetOrgMembershipsForUserArguments): Promise<
+    rm.IRestResponse<GetOrgMembershipsForUserAPIResponse>
+  > {
+    const urlParams = signQuery({
+      input: {
+        userID,
+      },
+      secret: this.client_secret,
+    });
+
+    return this.apiClient.get<GetOrgMembershipsForUserAPIResponse>(
+      `/s/${this.client_id}/org_memberships`,
       {
         queryParameters: {
           params: urlParams,

@@ -19,6 +19,14 @@ import {
   PutOrganizationArguments,
   GetOrgMembershipsForUserArguments,
   GetOrgMembershipsForUserAPIResponse,
+  GetAppResponse,
+  GetAppRoleMetadataArguments,
+  AppRoleMetadataResponse,
+  UpdateAppRoleMetadataArguments,
+  GetUsersArguments,
+  GetUsersResponse,
+  PutUserMetadataArguments,
+  PutUserMetadataResponse,
 } from './global';
 import { signQuery, signBody } from './query';
 import { base64Decode } from './utils/strings';
@@ -43,6 +51,10 @@ export class SlashauthClient {
 
     this.client_id = client_id;
     this.client_secret = client_secret;
+  }
+
+  async getApp(): Promise<rm.IRestResponse<GetAppResponse>> {
+    return this.apiClient.get<GetAppResponse>(`/s/${this.client_id}`);
   }
 
   async hasRole({
@@ -312,5 +324,110 @@ export class SlashauthClient {
         },
       }
     );
+  }
+
+  // RoleMetadata
+  async getAppRoleMetadata({
+    role,
+  }: GetAppRoleMetadataArguments): Promise<
+    rm.IRestResponse<AppRoleMetadataResponse>
+  > {
+    const encodedRole = Buffer.from(role, 'utf8').toString('base64');
+
+    const urlParams = signQuery({
+      input: {
+        role: encodedRole,
+        encoded: 'true',
+      },
+      secret: this.client_secret,
+    });
+
+    return this.apiClient.get<AppRoleMetadataResponse>(
+      `/s/${this.client_id}/role_metadata`,
+      {
+        queryParameters: {
+          params: urlParams,
+        },
+      }
+    );
+  }
+
+  async updateAppRoleMetadata({
+    role,
+    metadata,
+  }: UpdateAppRoleMetadataArguments): Promise<
+    rm.IRestResponse<AppRoleMetadataResponse>
+  > {
+    const body = signBody({
+      input: {
+        roleLevel: role,
+        metadata,
+      },
+      secret: this.client_secret,
+    });
+
+    return await this.apiClient.replace<AppRoleMetadataResponse>(
+      `/s/${this.client_id}/role_metadata`,
+      body
+    );
+  }
+
+  // Users
+  async getUsers({
+    organizationID,
+    cursor,
+  }: GetUsersArguments): Promise<rm.IRestResponse<GetUsersResponse>> {
+    const input: { [key: string]: string } = {};
+
+    if (organizationID) {
+      input.organizationID = organizationID;
+    }
+    if (cursor) {
+      input.cursor = cursor;
+    }
+
+    const urlParams = signQuery({
+      input,
+      secret: this.client_secret,
+    });
+
+    let url: string;
+    if (organizationID) {
+      url = `/s/${this.client_id}/organizations/${organizationID}/users`;
+    } else {
+      url = `/s/${this.client_id}/users`;
+    }
+
+    return this.apiClient.get<GetUsersResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
+  }
+
+  async updateUserMetadata({
+    userID,
+    nickname,
+    metadata,
+    organizationID,
+  }: PutUserMetadataArguments): Promise<
+    rm.IRestResponse<PutUserMetadataResponse>
+  > {
+    const body = signBody({
+      input: {
+        nickname,
+        metadata,
+      },
+      secret: this.client_secret,
+    });
+
+    let url: string;
+    if (organizationID) {
+      url = `/s/${this.client_id}/organizations/${organizationID}/users`;
+    } else {
+      url = `/s/${this.client_id}/users`;
+    }
+
+    return await this.apiClient.replace<PutUserMetadataResponse>(url, body);
   }
 }

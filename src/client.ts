@@ -155,7 +155,7 @@ export class SlashauthClient {
       const encodedClaims = token.split('.')[1];
 
       if (!encodedClaims) {
-        throw new SyntaxError('malformed token');
+        return null;
       }
 
       const decodedClaims = JSON.parse(

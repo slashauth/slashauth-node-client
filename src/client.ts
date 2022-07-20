@@ -27,6 +27,8 @@ import {
   GetUsersResponse,
   PutUserMetadataArguments,
   PutUserMetadataResponse,
+  GetUserByIDArguments,
+  GetUserByIDResponse,
 } from './global';
 import { signQuery, signBody } from './query';
 import { base64Decode } from './utils/strings';
@@ -132,7 +134,7 @@ export class SlashauthClient {
 
   async validateToken({
     token,
-  }: ValidateTokenArguments): Promise<ValidateTokenResponse> {
+  }: ValidateTokenArguments): Promise<ValidateTokenResponse | null> {
     try {
       const resp = this.apiClient.get<ValidateTokenAPIResponse>(
         `/validate_token`,
@@ -147,7 +149,7 @@ export class SlashauthClient {
       );
 
       if (!resp) {
-        throw new Error('token is not valid');
+        return null;
       }
 
       const encodedClaims = token.split('.')[1];
@@ -373,6 +375,35 @@ export class SlashauthClient {
   }
 
   // Users
+  async getUserByID({
+    userID,
+    organizationID,
+  }: GetUserByIDArguments): Promise<rm.IRestResponse<GetUserByIDResponse>> {
+    const input: { [key: string]: string } = {};
+
+    if (organizationID) {
+      input.organizationID = organizationID;
+    }
+
+    const urlParams = signQuery({
+      input,
+      secret: this.client_secret,
+    });
+
+    let url: string;
+    if (organizationID) {
+      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}`;
+    } else {
+      url = `/s/${this.client_id}/users/${userID}`;
+    }
+
+    return this.apiClient.get<GetUserByIDResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
+  }
+
   async getUsers({
     organizationID,
     cursor,

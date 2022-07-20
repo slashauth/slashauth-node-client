@@ -134,7 +134,7 @@ export class SlashauthClient {
 
   async validateToken({
     token,
-  }: ValidateTokenArguments): Promise<ValidateTokenResponse | null> {
+  }: ValidateTokenArguments): Promise<ValidateTokenResponse> {
     try {
       const resp = this.apiClient.get<ValidateTokenAPIResponse>(
         `/validate_token`,
@@ -149,13 +149,13 @@ export class SlashauthClient {
       );
 
       if (!resp) {
-        return null;
+        throw new Error('token is not valid');
       }
 
       const encodedClaims = token.split('.')[1];
 
       if (!encodedClaims) {
-        return null;
+        throw new SyntaxError('malformed token');
       }
 
       const decodedClaims = JSON.parse(

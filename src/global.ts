@@ -2,6 +2,21 @@ type MaybeStringInput = {
   input?: string;
 };
 
+type ObjectMap = {
+  [key: string]: any;
+};
+
+type UserRecord = {
+  clientID: string;
+  organizationID?: string;
+  wallet: string;
+  nickname?: string;
+  roles: string[];
+  metadata?: ObjectMap;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type GetQueryStringSignatureOptions = {
   input: { [key: string]: string };
   secret: string;
@@ -12,6 +27,14 @@ export type PostBodySignatureOptions = {
   input: { [key: string]: any };
   secret: string;
   nonce?: string;
+};
+
+export type GetAppResponse = {
+  data: {
+    clientID: string;
+    name: string;
+    description?: string;
+  };
 };
 
 export type HasRoleArguments = {
@@ -138,4 +161,39 @@ export type RoleRequirementAPIResponse = {
 export type WalletRoleAPIResponse = {
   wallet: string;
   roleLevels: string[];
+};
+
+export type GetAppRoleMetadataArguments = {
+  role: string;
+};
+
+export type UpdateAppRoleMetadataArguments = {
+  role: string;
+  metadata: ObjectMap;
+};
+
+export type AppRoleMetadataResponse = {
+  data: ObjectMap;
+};
+
+export type GetUsersArguments = {
+  organizationID?: string;
+  cursor?: string;
+};
+
+export type GetUsersResponse = {
+  data: UserRecord[];
+  hasMore: boolean;
+  cursor?: string;
+};
+
+export type PutUserMetadataArguments = {
+  userID: string;
+  nickname: MaybeStringInput;
+  metadata: ObjectMap;
+  organizationID?: string;
+};
+
+export type PutUserMetadataResponse = {
+  data: UserRecord;
 };

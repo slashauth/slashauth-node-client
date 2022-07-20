@@ -176,6 +176,15 @@ export type AppRoleMetadataResponse = {
   data: ObjectMap;
 };
 
+export type GetUserByIDArguments = {
+  userID: string;
+  organizationID?: string;
+};
+
+export type GetUserByIDResponse = {
+  data: UserRecord;
+};
+
 export type GetUsersArguments = {
   organizationID?: string;
   cursor?: string;
@@ -189,8 +198,8 @@ export type GetUsersResponse = {
 
 export type PutUserMetadataArguments = {
   userID: string;
-  nickname: MaybeStringInput;
-  metadata: ObjectMap;
+  nickname?: string;
+  metadata?: ObjectMap;
   organizationID?: string;
 };
 

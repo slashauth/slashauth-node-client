@@ -27,6 +27,8 @@ import {
   GetUsersResponse,
   PutUserMetadataArguments,
   PutUserMetadataResponse,
+  GetUserByIDArguments,
+  GetUserByIDResponse,
 } from './global';
 import { signQuery, signBody } from './query';
 import { base64Decode } from './utils/strings';
@@ -373,6 +375,35 @@ export class SlashauthClient {
   }
 
   // Users
+  async getUserByID({
+    userID,
+    organizationID,
+  }: GetUserByIDArguments): Promise<rm.IRestResponse<GetUserByIDResponse>> {
+    const input: { [key: string]: string } = {};
+
+    if (organizationID) {
+      input.organizationID = organizationID;
+    }
+
+    const urlParams = signQuery({
+      input,
+      secret: this.client_secret,
+    });
+
+    let url: string;
+    if (organizationID) {
+      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}`;
+    } else {
+      url = `/s/${this.client_id}/users/${userID}`;
+    }
+
+    return this.apiClient.get<GetUserByIDResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
+  }
+
   async getUsers({
     organizationID,
     cursor,
@@ -423,9 +454,9 @@ export class SlashauthClient {
 
     let url: string;
     if (organizationID) {
-      url = `/s/${this.client_id}/organizations/${organizationID}/users`;
+      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}`;
     } else {
-      url = `/s/${this.client_id}/users`;
+      url = `/s/${this.client_id}/users/${userID}`;
     }
 
     return await this.apiClient.replace<PutUserMetadataResponse>(url, body);

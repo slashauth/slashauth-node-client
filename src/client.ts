@@ -454,9 +454,9 @@ export class SlashauthClient {
 
     let url: string;
     if (organizationID) {
-      url = `/s/${this.client_id}/organizations/${organizationID}/users`;
+      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}`;
     } else {
-      url = `/s/${this.client_id}/users`;
+      url = `/s/${this.client_id}/users/${userID}`;
     }
 
     return await this.apiClient.replace<PutUserMetadataResponse>(url, body);

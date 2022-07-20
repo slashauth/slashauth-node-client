@@ -198,7 +198,7 @@ export type GetUsersResponse = {
 
 export type PutUserMetadataArguments = {
   userID: string;
-  nickname?: MaybeStringInput;
+  nickname?: string;
   metadata?: ObjectMap;
   organizationID?: string;
 };

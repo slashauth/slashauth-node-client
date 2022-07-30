@@ -136,7 +136,7 @@ export class SlashauthClient {
     token,
   }: ValidateTokenArguments): Promise<ValidateTokenResponse> {
     try {
-      const resp = this.apiClient.get<ValidateTokenAPIResponse>(
+      const resp = await this.apiClient.get<ValidateTokenAPIResponse>(
         `/validate_token`,
         {
           queryParameters: {

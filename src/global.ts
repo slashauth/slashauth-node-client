@@ -236,6 +236,17 @@ export type GetFilesArguments = {
   cursor?: string;
 };
 
+export type GetPresignedURLForFileArguments = {
+  fileID: string;
+  organizationID?: string;
+};
+
+export type GetPresignedURLForFileResponse = {
+  data: {
+    url: string;
+  };
+};
+
 export type GetFilesResponse = {
   data: FileRecord[];
   hasMore: boolean;

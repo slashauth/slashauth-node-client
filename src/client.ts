@@ -40,6 +40,8 @@ import {
   CreateFileArguments,
   UpdateFileArguments,
   DeleteFileArguments,
+  GetPresignedURLForFileArguments,
+  GetPresignedURLForFileResponse,
 } from './global';
 import { signQuery, signBody } from './query';
 import { base64Decode, checkBlobStatus } from './utils/strings';
@@ -493,6 +495,35 @@ export class SlashauthClient {
     const url = `${getBaseURL(this.client_id, organizationID)}/files/${fileID}`;
 
     return this.apiClient.get<CRUDFileResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
+  }
+
+  async getPresignedURLForFile({
+    fileID,
+    organizationID,
+  }: GetPresignedURLForFileArguments): Promise<
+    rm.IRestResponse<GetPresignedURLForFileResponse>
+  > {
+    const input: { [key: string]: string } = {};
+
+    if (organizationID) {
+      input.organizationID = organizationID;
+    }
+
+    const urlParams = signQuery({
+      input,
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(
+      this.client_id,
+      organizationID
+    )}/files/${fileID}/url`;
+
+    return this.apiClient.get<GetPresignedURLForFileResponse>(url, {
       queryParameters: {
         params: urlParams,
       },

@@ -12,7 +12,7 @@ type ObjectMap = {
   [key: string]: any;
 };
 
-type UserRecord = {
+export type UserRecord = {
   clientID: string;
   organizationID?: string;
   wallet: string;
@@ -23,7 +23,7 @@ type UserRecord = {
   updatedAt: string;
 };
 
-type FileRecord = {
+export type FileRecord = {
   ID: string;
   blobID: string;
   clientID: string;

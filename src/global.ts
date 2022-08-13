@@ -2,6 +2,12 @@ type MaybeStringInput = {
   input?: string;
 };
 
+export enum BlobStatus {
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
+
 type ObjectMap = {
   [key: string]: any;
 };
@@ -13,6 +19,19 @@ type UserRecord = {
   nickname?: string;
   roles: string[];
   metadata?: ObjectMap;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type FileRecord = {
+  ID: string;
+  blobID: string;
+  clientID: string;
+  organizationID?: string;
+  wallet: string;
+  name: string;
+  description?: string;
+  rolesRequired: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -205,4 +224,80 @@ export type PutUserMetadataArguments = {
 
 export type PutUserMetadataResponse = {
   data: UserRecord;
+};
+
+export type GetFileByIDArguments = {
+  fileID: string;
+  organizationID?: string;
+};
+
+export type GetPresignedURLForFileArguments = {
+  fileID: string;
+  organizationID?: string;
+};
+
+export type GetPresignedURLForFileResponse = {
+  data: {
+    url: string;
+  };
+};
+
+export type ListFilesArguments = {
+  organizationID?: string;
+  cursor?: string;
+};
+
+export type ListFilesResponse = {
+  data: FileRecord[];
+  hasMore: boolean;
+  cursor?: string;
+};
+
+export type CreateFileArguments = {
+  organizationID?: string;
+  blobID: string;
+  wallet: string;
+  name: string;
+  description?: string;
+  rolesRequired: string[];
+};
+
+export type CRUDFileResponse = {
+  data: FileRecord;
+};
+
+export type UpdateFileArguments = {
+  organizationID?: string;
+  fileID: string;
+  name: MaybeStringInput;
+  description?: MaybeStringInput;
+  rolesRequired?: string[];
+};
+
+export type DeleteFileArguments = {
+  organizationID?: string;
+  fileID: string;
+};
+
+export type CreateBlobUploadArguments = {
+  organizationID?: string;
+  wallet: string;
+  mimeType: string;
+  fileSize: number;
+};
+
+export type CreateBlobUploadResponse = {
+  blobID: string;
+  signedURL: string;
+};
+
+export type UpdateBlobUploadStatusArguments = {
+  organizationID?: string;
+  blobID: string;
+  status: BlobStatus;
+};
+
+export type UpdateBlobUploadStatusResponse = {
+  blobID: string;
+  status: string;
 };

@@ -29,9 +29,23 @@ import {
   PutUserMetadataResponse,
   GetUserByIDArguments,
   GetUserByIDResponse,
+  GetFileByIDArguments,
+  ListFilesResponse,
+  ListFilesArguments,
+  CreateBlobUploadArguments,
+  CreateBlobUploadResponse,
+  UpdateBlobUploadStatusArguments,
+  UpdateBlobUploadStatusResponse,
+  CRUDFileResponse,
+  CreateFileArguments,
+  UpdateFileArguments,
+  DeleteFileArguments,
+  GetPresignedURLForFileArguments,
+  GetPresignedURLForFileResponse,
 } from './global';
 import { signQuery, signBody } from './query';
-import { base64Decode } from './utils/strings';
+import { base64Decode, checkBlobStatus } from './utils/strings';
+import { getBaseURL } from './utils/url';
 
 export class SlashauthClient {
   identifier: string;
@@ -460,5 +474,195 @@ export class SlashauthClient {
     }
 
     return await this.apiClient.replace<PutUserMetadataResponse>(url, body);
+  }
+
+  // FILES
+  async getFileByID({
+    fileID,
+    organizationID,
+  }: GetFileByIDArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+    const input: { [key: string]: string } = {};
+
+    if (organizationID) {
+      input.organizationID = organizationID;
+    }
+
+    const urlParams = signQuery({
+      input,
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(this.client_id, organizationID)}/files/${fileID}`;
+
+    return this.apiClient.get<CRUDFileResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
+  }
+
+  async getPresignedURLForFile({
+    fileID,
+    organizationID,
+  }: GetPresignedURLForFileArguments): Promise<
+    rm.IRestResponse<GetPresignedURLForFileResponse>
+  > {
+    const input: { [key: string]: string } = {};
+
+    if (organizationID) {
+      input.organizationID = organizationID;
+    }
+
+    const urlParams = signQuery({
+      input,
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(
+      this.client_id,
+      organizationID
+    )}/files/${fileID}/url`;
+
+    return this.apiClient.get<GetPresignedURLForFileResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
+  }
+
+  async listFiles({
+    organizationID,
+    cursor,
+  }: ListFilesArguments): Promise<rm.IRestResponse<ListFilesResponse>> {
+    const input: { [key: string]: string } = {};
+
+    if (organizationID) {
+      input.organizationID = organizationID;
+    }
+    if (cursor) {
+      input.cursor = cursor;
+    }
+
+    const urlParams = signQuery({
+      input,
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(this.client_id, organizationID)}/files`;
+
+    return this.apiClient.get<ListFilesResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
+  }
+
+  async createFile({
+    organizationID,
+    blobID,
+    wallet,
+    name,
+    description,
+    rolesRequired,
+  }: CreateFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+    const body = signBody({
+      input: {
+        blobID,
+        wallet,
+        name,
+        description,
+        rolesRequired,
+      },
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(this.client_id, organizationID)}/files`;
+
+    return await this.apiClient.create<CRUDFileResponse>(url, body);
+  }
+
+  async updateFile({
+    organizationID,
+    fileID,
+    name,
+    description,
+    rolesRequired,
+  }: UpdateFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+    const body = signBody({
+      input: {
+        name,
+        description,
+        rolesRequired,
+      },
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(this.client_id, organizationID)}/files/${fileID}`;
+
+    return await this.apiClient.update<CRUDFileResponse>(url, body);
+  }
+
+  async deleteFile({
+    organizationID,
+    fileID,
+  }: DeleteFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+    const urlParams = signQuery({
+      input: {}, // TODO: Does this need to exist?
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(this.client_id, organizationID)}/files/${fileID}`;
+
+    return await this.apiClient.del<CRUDFileResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
+  }
+
+  // BLOBS
+  async createBlobUpload({
+    organizationID,
+    wallet,
+    mimeType,
+    fileSize,
+  }: CreateBlobUploadArguments): Promise<
+    rm.IRestResponse<CreateBlobUploadResponse>
+  > {
+    const body = signBody({
+      input: {
+        wallet,
+        mimeType,
+        fileSize,
+      },
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(this.client_id, organizationID)}/blobs`;
+
+    return await this.apiClient.create<CreateBlobUploadResponse>(url, body);
+  }
+
+  async updateBlobUploadStatus({
+    organizationID,
+    blobID,
+    status,
+  }: UpdateBlobUploadStatusArguments): Promise<
+    rm.IRestResponse<UpdateBlobUploadStatusResponse>
+  > {
+    const statusString = checkBlobStatus(status);
+    const body = signBody({
+      input: {
+        status: statusString,
+      },
+      secret: this.client_secret,
+    });
+
+    const url = `${getBaseURL(this.client_id, organizationID)}/blobs/${blobID}`;
+
+    return await this.apiClient.update<UpdateBlobUploadStatusResponse>(
+      url,
+      body
+    );
   }
 }

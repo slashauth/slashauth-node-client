@@ -30,8 +30,8 @@ import {
   GetUserByIDArguments,
   GetUserByIDResponse,
   GetFileByIDArguments,
-  GetFilesResponse,
-  GetFilesArguments,
+  ListFilesResponse,
+  ListFilesArguments,
   CreateBlobUploadArguments,
   CreateBlobUploadResponse,
   UpdateBlobUploadStatusArguments,
@@ -530,10 +530,10 @@ export class SlashauthClient {
     });
   }
 
-  async getFiles({
+  async listFiles({
     organizationID,
     cursor,
-  }: GetFilesArguments): Promise<rm.IRestResponse<GetFilesResponse>> {
+  }: ListFilesArguments): Promise<rm.IRestResponse<ListFilesResponse>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -550,7 +550,7 @@ export class SlashauthClient {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/files`;
 
-    return this.apiClient.get<GetFilesResponse>(url, {
+    return this.apiClient.get<ListFilesResponse>(url, {
       queryParameters: {
         params: urlParams,
       },

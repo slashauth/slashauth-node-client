@@ -227,12 +227,12 @@ export type PutUserMetadataResponse = {
 };
 
 export type GetFileByIDArguments = {
-  fileID: string;
+  id: string;
   organizationID?: string;
 };
 
 export type GetPresignedURLForFileArguments = {
-  fileID: string;
+  id: string;
   organizationID?: string;
 };
 
@@ -267,16 +267,16 @@ export type CRUDFileResponse = {
 };
 
 export type UpdateFileArguments = {
+  id: string;
   organizationID?: string;
-  fileID: string;
   name?: MaybeStringInput;
   description?: MaybeStringInput;
   rolesRequired?: string[];
 };
 
 export type DeleteFileArguments = {
+  id: string;
   organizationID?: string;
-  fileID: string;
 };
 
 export type CreateBlobUploadArguments = {
@@ -288,20 +288,20 @@ export type CreateBlobUploadArguments = {
 
 export type CreateBlobUploadResponse = {
   data: {
-    blobID: string;
+    id: string;
     signedURL: string;
   };
 };
 
 export type UpdateBlobUploadStatusArguments = {
+  id: string;
   organizationID?: string;
-  blobID: string;
   status: BlobStatus;
 };
 
 export type UpdateBlobUploadStatusResponse = {
   data: {
-    blobID: string;
+    id: string;
     status: string;
   };
 };

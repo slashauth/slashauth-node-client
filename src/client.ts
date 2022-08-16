@@ -478,7 +478,7 @@ export class SlashauthClient {
 
   // FILES
   async getFileByID({
-    fileID,
+    id,
     organizationID,
   }: GetFileByIDArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
     const input: { [key: string]: string } = {};
@@ -492,7 +492,7 @@ export class SlashauthClient {
       secret: this.client_secret,
     });
 
-    const url = `${getBaseURL(this.client_id, organizationID)}/files/${fileID}`;
+    const url = `${getBaseURL(this.client_id, organizationID)}/files/${id}`;
 
     return this.apiClient.get<CRUDFileResponse>(url, {
       queryParameters: {
@@ -502,7 +502,7 @@ export class SlashauthClient {
   }
 
   async getPresignedURLForFile({
-    fileID,
+    id,
     organizationID,
   }: GetPresignedURLForFileArguments): Promise<
     rm.IRestResponse<GetPresignedURLForFileResponse>
@@ -518,10 +518,7 @@ export class SlashauthClient {
       secret: this.client_secret,
     });
 
-    const url = `${getBaseURL(
-      this.client_id,
-      organizationID
-    )}/files/${fileID}/url`;
+    const url = `${getBaseURL(this.client_id, organizationID)}/files/${id}/url`;
 
     return this.apiClient.get<GetPresignedURLForFileResponse>(url, {
       queryParameters: {
@@ -582,8 +579,8 @@ export class SlashauthClient {
   }
 
   async updateFile({
+    id,
     organizationID,
-    fileID,
     name,
     description,
     rolesRequired,
@@ -597,21 +594,21 @@ export class SlashauthClient {
       secret: this.client_secret,
     });
 
-    const url = `${getBaseURL(this.client_id, organizationID)}/files/${fileID}`;
+    const url = `${getBaseURL(this.client_id, organizationID)}/files/${id}`;
 
     return await this.apiClient.update<CRUDFileResponse>(url, body);
   }
 
   async deleteFile({
+    id,
     organizationID,
-    fileID,
   }: DeleteFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
     const urlParams = signQuery({
       input: {}, // TODO: Does this need to exist?
       secret: this.client_secret,
     });
 
-    const url = `${getBaseURL(this.client_id, organizationID)}/files/${fileID}`;
+    const url = `${getBaseURL(this.client_id, organizationID)}/files/${id}`;
 
     return await this.apiClient.del<CRUDFileResponse>(url, {
       queryParameters: {
@@ -644,8 +641,8 @@ export class SlashauthClient {
   }
 
   async updateBlobUploadStatus({
+    id,
     organizationID,
-    blobID,
     status,
   }: UpdateBlobUploadStatusArguments): Promise<
     rm.IRestResponse<UpdateBlobUploadStatusResponse>
@@ -658,7 +655,7 @@ export class SlashauthClient {
       secret: this.client_secret,
     });
 
-    const url = `${getBaseURL(this.client_id, organizationID)}/blobs/${blobID}`;
+    const url = `${getBaseURL(this.client_id, organizationID)}/blobs/${id}`;
 
     return await this.apiClient.update<UpdateBlobUploadStatusResponse>(
       url,

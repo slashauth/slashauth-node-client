@@ -24,7 +24,7 @@ export type UserRecord = {
 };
 
 export type FileRecord = {
-  ID: string;
+  id: string;
   blobID: string;
   clientID: string;
   organizationID?: string;
@@ -269,7 +269,7 @@ export type CRUDFileResponse = {
 export type UpdateFileArguments = {
   organizationID?: string;
   fileID: string;
-  name: MaybeStringInput;
+  name?: MaybeStringInput;
   description?: MaybeStringInput;
   rolesRequired?: string[];
 };
@@ -287,8 +287,10 @@ export type CreateBlobUploadArguments = {
 };
 
 export type CreateBlobUploadResponse = {
-  blobID: string;
-  signedURL: string;
+  data: {
+    blobID: string;
+    signedURL: string;
+  };
 };
 
 export type UpdateBlobUploadStatusArguments = {
@@ -298,6 +300,8 @@ export type UpdateBlobUploadStatusArguments = {
 };
 
 export type UpdateBlobUploadStatusResponse = {
-  blobID: string;
-  status: string;
+  data: {
+    blobID: string;
+    status: string;
+  };
 };

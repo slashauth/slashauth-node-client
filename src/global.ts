@@ -288,7 +288,7 @@ export type CreateBlobUploadArguments = {
 
 export type CreateBlobUploadResponse = {
   data: {
-    blobID: string;
+    id: string;
     signedURL: string;
   };
 };
@@ -301,7 +301,7 @@ export type UpdateBlobUploadStatusArguments = {
 
 export type UpdateBlobUploadStatusResponse = {
   data: {
-    blobID: string;
+    id: string;
     status: string;
   };
 };

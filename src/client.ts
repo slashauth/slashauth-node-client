@@ -192,13 +192,11 @@ export class SlashauthClient {
   async createOrganization({
     name,
     description,
-    accessToken,
   }: PostOrganizationArguments): Promise<
     rm.IRestResponse<UpsertOrganizationAPIResponse>
   > {
     const body = signBody({
       input: {
-        accessToken,
         name,
         description: description || '',
       },
@@ -215,13 +213,11 @@ export class SlashauthClient {
     organizationID,
     name,
     description,
-    accessToken,
   }: PutOrganizationArguments): Promise<
     rm.IRestResponse<UpsertOrganizationAPIResponse>
   > {
     const body = signBody({
       input: {
-        accessToken,
         name,
         description: description || '',
       },
@@ -242,7 +238,6 @@ export class SlashauthClient {
     chainID,
     tokenTypeID,
     role,
-    accessToken,
   }: AddRoleRequirementOrganizationArguments): Promise<
     rm.IRestResponse<RoleRequirementAPIResponse>
   > {
@@ -254,7 +249,6 @@ export class SlashauthClient {
         chainID,
         tokenTypeID,
         role,
-        accessToken,
       },
       secret: this.client_secret,
     });
@@ -269,7 +263,6 @@ export class SlashauthClient {
     organizationID,
     wallet,
     role,
-    accessToken,
   }: AddWalletToRoleOrganizationArguments): Promise<
     rm.IRestResponse<WalletRoleAPIResponse>
   > {
@@ -277,7 +270,6 @@ export class SlashauthClient {
       input: {
         wallet,
         role,
-        accessToken,
       },
       secret: this.client_secret,
     });
@@ -291,14 +283,12 @@ export class SlashauthClient {
   async deleteRoleRequirementForOrganization({
     organizationID,
     roleID,
-    accessToken,
   }: DeleteRoleRequirementOrganizationArguments): Promise<
     rm.IRestResponse<RoleRequirementAPIResponse>
   > {
     const urlParams = signQuery({
       input: {
         roleID,
-        accessToken,
       },
       secret: this.client_secret,
     });
@@ -317,7 +307,6 @@ export class SlashauthClient {
     organizationID,
     wallet,
     role,
-    accessToken,
   }: DeleteRoleFromWalletOrganizationArguments): Promise<
     rm.IRestResponse<WalletRoleAPIResponse>
   > {
@@ -327,7 +316,6 @@ export class SlashauthClient {
       input: {
         wallet,
         role: encodedRole,
-        accessToken,
       },
       secret: this.client_secret,
     });

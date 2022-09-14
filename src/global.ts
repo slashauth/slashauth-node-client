@@ -117,14 +117,12 @@ export type DecodedToken = {
 export type PostOrganizationArguments = {
   name: string;
   description?: string;
-  accessToken: string;
 };
 
 export type PutOrganizationArguments = {
   organizationID: string;
   name: MaybeStringInput;
   description?: MaybeStringInput;
-  accessToken: string;
 };
 
 export type UpsertOrganizationAPIResponse = {
@@ -144,27 +142,23 @@ export type AddRoleRequirementOrganizationArguments = {
   chainID: string;
   tokenTypeID?: number;
   role: string;
-  accessToken: string;
 };
 
 export type AddWalletToRoleOrganizationArguments = {
   organizationID: string;
   wallet: string;
   role: string;
-  accessToken: string;
 };
 
 export type DeleteRoleRequirementOrganizationArguments = {
   organizationID: string;
   roleID: string;
-  accessToken: string;
 };
 
 export type DeleteRoleFromWalletOrganizationArguments = {
   organizationID: string;
   wallet: string;
   role: string;
-  accessToken: string;
 };
 
 export type RoleRequirementAPIResponse = {

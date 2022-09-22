@@ -11,6 +11,7 @@ import {
   UpsertOrganizationAPIResponse,
   PostOrganizationArguments,
   RoleRequirementAPIResponse,
+  ValidateTokenAPIResponse,
   ValidateTokenArguments,
   ValidateTokenResponse,
   WalletRoleAPIResponse,
@@ -42,7 +43,6 @@ import {
   GetPresignedURLForFileArguments,
   GetPresignedURLForFileResponse,
   HasRoleTokenArguments,
-  ValidateTokenAPIResponse,
 } from './global';
 import { signQuery, signBody } from './query';
 import { base64Decode, checkBlobStatus } from './utils/strings';
@@ -187,8 +187,7 @@ export class SlashauthClient {
         }
       );
 
-      // if (!resp || !resp.status || resp.status !== 200) {
-      if (!resp) {
+      if (!resp || !resp.statusCode || resp.statusCode !== 200) {
         throw new Error('token is not valid');
       }
 

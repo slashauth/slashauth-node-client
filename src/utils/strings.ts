@@ -5,6 +5,7 @@ export const base64Encode = (str: string): string => {
 };
 
 export const base64Decode = (str: string): string => {
+  return atob(str);
   return Buffer.from(str, 'base64').toString('utf-8');
 };
 

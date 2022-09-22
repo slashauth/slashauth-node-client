@@ -61,6 +61,11 @@ export type HasRoleArguments = {
   role: string;
 };
 
+export type HasRoleTokenArguments = {
+  token: string;
+  role: string;
+};
+
 export type HasOrgRoleArguments = {
   organizationID: string;
   address: string;

@@ -11,7 +11,6 @@ import {
   UpsertOrganizationAPIResponse,
   PostOrganizationArguments,
   RoleRequirementAPIResponse,
-  ValidateTokenAPIResponse,
   ValidateTokenArguments,
   ValidateTokenResponse,
   WalletRoleAPIResponse,
@@ -42,6 +41,8 @@ import {
   DeleteFileArguments,
   GetPresignedURLForFileArguments,
   GetPresignedURLForFileResponse,
+  HasRoleTokenArguments,
+  ValidateTokenAPIResponse,
 } from './global';
 import { signQuery, signBody } from './query';
 import { base64Decode, checkBlobStatus } from './utils/strings';
@@ -91,6 +92,30 @@ export class SlashauthClient {
     return this.apiClient.get<HasRoleAPIResponse>(
       `/s/${this.client_id}/has_role`,
       {
+        queryParameters: {
+          params: urlParams,
+        },
+      }
+    );
+  }
+
+  async hasRoleToken({
+    token,
+    role,
+  }: HasRoleTokenArguments): Promise<rm.IRestResponse<HasRoleAPIResponse>> {
+    const encodedRole = Buffer.from(role, 'utf8').toString('base64');
+
+    const urlParams = {
+      role: encodedRole,
+      encoded: 'true',
+    };
+
+    return this.apiClient.get<HasRoleAPIResponse>(
+      `/p/${this.client_id}/has_role`,
+      {
+        additionalHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
         queryParameters: {
           params: urlParams,
         },
@@ -162,6 +187,7 @@ export class SlashauthClient {
         }
       );
 
+      // if (!resp || !resp.status || resp.status !== 200) {
       if (!resp) {
         throw new Error('token is not valid');
       }

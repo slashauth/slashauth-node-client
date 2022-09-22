@@ -43,7 +43,7 @@ import {
   GetPresignedURLForFileArguments,
   GetPresignedURLForFileResponse,
   HasRoleTokenArguments,
-} from './global';
+} from '@slashauth/types';
 import { signQuery, signBody } from './query';
 import { base64Decode, checkBlobStatus } from './utils/strings';
 import { getBaseURL } from './utils/url';

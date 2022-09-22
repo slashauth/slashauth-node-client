@@ -1,6 +1,6 @@
+import { SlashauthClient } from '@slashauth/node-client';
 import * as express from 'express';
-import { SlashauthClient } from '../../client';
-import { parseToken } from '../../utils/token';
+import { parseToken } from './utils/token';
 
 declare global {
   namespace Express {

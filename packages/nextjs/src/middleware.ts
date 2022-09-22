@@ -1,6 +1,6 @@
-import { SlashauthClient } from '../../client';
+import { SlashauthClient } from '@slashauth/node-client';
 import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
-import { parseToken } from '../../utils/token';
+import { parseToken } from './utils/token';
 
 export type AuthedNextApiRequest = {
   address?: string;

@@ -14,6 +14,7 @@ export type ValidateTokenResponse = {
   expiresAt: number;
   issuer: string;
   walletType: string;
+  getWalletAddress(): Promise<string | null>;
 };
 
 export type DecodedToken = {

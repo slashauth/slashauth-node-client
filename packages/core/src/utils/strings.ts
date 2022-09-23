@@ -1,4 +1,4 @@
-import { BlobStatus } from '../global';
+import { BlobStatus } from '@slashauth/types';
 
 export const base64Encode = (str: string): string => {
   return Buffer.from(str, 'utf-8').toString('base64');

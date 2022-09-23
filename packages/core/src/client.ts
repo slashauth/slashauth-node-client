@@ -42,7 +42,8 @@ import {
   DeleteFileArguments,
   GetPresignedURLForFileArguments,
   GetPresignedURLForFileResponse,
-} from './global';
+  HasRoleTokenArguments,
+} from '@slashauth/types';
 import { signQuery, signBody } from './query';
 import { base64Decode, checkBlobStatus } from './utils/strings';
 import { getBaseURL } from './utils/url';
@@ -91,6 +92,30 @@ export class SlashauthClient {
     return this.apiClient.get<HasRoleAPIResponse>(
       `/s/${this.client_id}/has_role`,
       {
+        queryParameters: {
+          params: urlParams,
+        },
+      }
+    );
+  }
+
+  async hasRoleToken({
+    token,
+    role,
+  }: HasRoleTokenArguments): Promise<rm.IRestResponse<HasRoleAPIResponse>> {
+    const encodedRole = Buffer.from(role, 'utf8').toString('base64');
+
+    const urlParams = {
+      role: encodedRole,
+      encoded: 'true',
+    };
+
+    return this.apiClient.get<HasRoleAPIResponse>(
+      `/p/${this.client_id}/has_role`,
+      {
+        additionalHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
         queryParameters: {
           params: urlParams,
         },
@@ -162,7 +187,7 @@ export class SlashauthClient {
         }
       );
 
-      if (!resp) {
+      if (!resp || !resp.statusCode || resp.statusCode !== 200) {
         throw new Error('token is not valid');
       }
 

@@ -1,4 +1,4 @@
-export const PROD_ENDPOINT = 'https://api.slashauth.xyz';
+export const PROD_ENDPOINT = 'https://api.slashauth.com';
 
 export type Config = {
   version: string;

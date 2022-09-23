@@ -2,7 +2,7 @@ import { createHmac } from 'crypto';
 import {
   GetQueryStringSignatureOptions,
   PostBodySignatureOptions,
-} from './global';
+} from '@slashauth/types';
 
 export const signQuery = ({
   input,

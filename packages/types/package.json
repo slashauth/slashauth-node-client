@@ -1,12 +1,12 @@
 {
-  "name": "@slashauth/packages",
-  "version": "0.1.0",
+  "name": "@slashauth/types",
+  "version": "0.1.0-beta1",
   "description": "",
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*"
+  ],
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "tsc",
@@ -23,8 +23,6 @@
     "url": "https://github.com/slashauth/slashauth-node-client/issues"
   },
   "homepage": "https://github.com/slashauth/slashauth-node-client#readme",
-  "devDependencies": {
-    "typescript": "^4.7.3"
-  },
+  "devDependencies": {},
   "dependencies": {}
 }

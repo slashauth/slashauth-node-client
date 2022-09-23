@@ -3,9 +3,12 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
 import { parseToken } from './utils/token';
 
 export type AuthedNextApiRequest = {
-  address?: string;
-  userID?: string;
-  isAuthed?: boolean;
+  slashauth: {
+    address?: string;
+    userID?: string;
+    isAuthed?: boolean;
+    getWalletAddress(): Promise<string | null>;
+  };
 } & NextApiRequest;
 
 type AuthedNextApiHandler<T = any> = (
@@ -58,8 +61,12 @@ export class SlashauthMiddlewareNext {
         token,
       });
 
-      req.address = tokenResp.address;
-      req.isAuthed = true;
+      req.slashauth = {
+        address: tokenResp.address,
+        userID: tokenResp.userID,
+        isAuthed: true,
+        getWalletAddress: tokenResp.getWalletAddress,
+      };
     } catch (err) {
       throw err;
     }

@@ -5,9 +5,12 @@ import { parseToken } from './utils/token';
 declare global {
   namespace Express {
     interface Request {
-      address?: string;
-      userID?: string;
-      isAuthed?: boolean;
+      slashauth: {
+        address?: string;
+        userID?: string;
+        isAuthed?: boolean;
+        getWalletAddress(): Promise<string | null>;
+      };
     }
   }
 }
@@ -32,8 +35,12 @@ export class SlashauthMiddlewareExpress {
         token,
       });
 
-      req.address = tokenResp.address;
-      req.isAuthed = true;
+      req.slashauth = {
+        address: tokenResp.address,
+        userID: tokenResp.userID,
+        isAuthed: true,
+        getWalletAddress: tokenResp.getWalletAddress,
+      };
     } catch (err) {
       throw err;
     }

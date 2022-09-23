@@ -1,5 +1,4 @@
-// export const PROD_ENDPOINT = 'https://api.slashauth.com';
-export const PROD_ENDPOINT = 'http://localhost:8080';
+export const PROD_ENDPOINT = 'https://api.slashauth.com';
 
 export type Config = {
   version: string;

@@ -7,7 +7,8 @@ export type ValidateTokenAPIResponse = {
 };
 
 export type ValidateTokenResponse = {
-  address: string;
+  userID?: string;
+  address?: string;
   clientID: string;
   issuedAt: number;
   expiresAt: number;

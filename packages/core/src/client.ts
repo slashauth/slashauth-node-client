@@ -201,8 +201,14 @@ export class SlashauthClient {
         base64Decode(encodedClaims)
       ) as DecodedToken;
 
+      let isUserID: boolean = false;
+      if (decodedClaims.sub.startsWith('user.')) {
+        isUserID = true;
+      }
+
       return {
-        address: decodedClaims.sub,
+        userID: isUserID ? decodedClaims.sub : undefined,
+        address: isUserID ? undefined : decodedClaims.sub,
         clientID: decodedClaims.client_id,
         issuedAt: decodedClaims.iat,
         expiresAt: decodedClaims.exp,

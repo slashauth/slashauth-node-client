@@ -202,9 +202,23 @@ export class SlashauthClient {
       ) as DecodedToken;
 
       let isUserID: boolean = false;
-      if (decodedClaims.sub.startsWith('.user')) {
+      if (decodedClaims.sub.startsWith('user.')) {
         isUserID = true;
       }
+
+      const getWalletAddress = async (): Promise<string | null> => {
+        if (isUserID) {
+          const user = await this.getUserByID({ userID: decodedClaims.sub });
+          if (user.result?.data.wallet) {
+            return user.result?.data.wallet;
+          } else {
+            return null;
+          }
+        } else {
+          // We already have the wallet address, return.
+          return decodedClaims.sub;
+        }
+      };
 
       return {
         userID: isUserID ? decodedClaims.sub : undefined,
@@ -214,6 +228,7 @@ export class SlashauthClient {
         expiresAt: decodedClaims.exp,
         issuer: decodedClaims.iss,
         walletType: decodedClaims.wallet_type,
+        getWalletAddress,
       };
     } catch (err) {
       throw err;

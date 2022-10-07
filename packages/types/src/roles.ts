@@ -57,13 +57,13 @@ export type AppRoleMetadataResponse = {
   data: ObjectMap;
 };
 
-export type AddAssignRoleToUserArguments = {
+export type AddAssignedRoleToUserArguments = {
   userID: string;
   role: string;
   organizationID?: string;
 };
 
-export type DeleteAssignRoleFromUserArguments = {
+export type RemoveAssignedRoleFromUserArguments = {
   userID: string;
   organizationID?: string;
   role: string;

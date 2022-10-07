@@ -40,9 +40,9 @@ import {
   HasRoleTokenArguments,
   UserResponse,
   CreateUserArguments,
-  AddAssignRoleToUserArguments,
   AssignedRoleAPIResponse,
-  DeleteAssignRoleFromUserArguments,
+  RemoveAssignedRoleFromUserArguments,
+  AddAssignedRoleToUserArguments,
 } from '@slashauth/types';
 import { signQuery, signBody } from './query';
 import { base64Decode, checkBlobStatus } from './utils/strings';
@@ -294,7 +294,7 @@ export class SlashauthClient {
     userID,
     role,
     organizationID,
-  }: AddAssignRoleToUserArguments): Promise<
+  }: AddAssignedRoleToUserArguments): Promise<
     rm.IRestResponse<AssignedRoleAPIResponse>
   > {
     const body = signBody({
@@ -306,19 +306,19 @@ export class SlashauthClient {
 
     let url: string;
     if (organizationID) {
-      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}/assign_role`;
+      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}/assigned_role`;
     } else {
-      url = `/s/${this.client_id}/users/${userID}/assign_role`;
+      url = `/s/${this.client_id}/users/${userID}/assigned_role`;
     }
 
     return await this.apiClient.create<AssignedRoleAPIResponse>(url, body);
   }
 
-  async deleteAssignedRoleFromUser({
+  async removeAssignedRoleFromUser({
     userID,
     role,
     organizationID,
-  }: DeleteAssignRoleFromUserArguments): Promise<
+  }: RemoveAssignedRoleFromUserArguments): Promise<
     rm.IRestResponse<AssignedRoleAPIResponse>
   > {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
@@ -332,9 +332,9 @@ export class SlashauthClient {
 
     let url: string;
     if (organizationID) {
-      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}/assign_role`;
+      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}/assigned_role`;
     } else {
-      url = `/s/${this.client_id}/users/${userID}/assign_role`;
+      url = `/s/${this.client_id}/users/${userID}/assigned_role`;
     }
 
     return await this.apiClient.del<AssignedRoleAPIResponse>(url, {

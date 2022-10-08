@@ -45,19 +45,7 @@ export type AddRoleRequirementOrganizationArguments = {
   role: string;
 };
 
-export type AddWalletToRoleOrganizationArguments = {
-  organizationID: string;
-  wallet: string;
-  role: string;
-};
-
 export type DeleteRoleRequirementOrganizationArguments = {
   organizationID: string;
   roleID: string;
-};
-
-export type DeleteRoleFromWalletOrganizationArguments = {
-  organizationID: string;
-  wallet: string;
-  role: string;
 };

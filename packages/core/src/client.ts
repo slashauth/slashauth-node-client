@@ -2,9 +2,7 @@ import * as rm from 'typed-rest-client';
 import { Config, PROD_ENDPOINT } from './config';
 import {
   AddRoleRequirementOrganizationArguments,
-  AddWalletToRoleOrganizationArguments,
   DecodedToken,
-  DeleteRoleFromWalletOrganizationArguments,
   DeleteRoleRequirementOrganizationArguments,
   HasRoleAPIResponse,
   HasRoleArguments,
@@ -14,7 +12,6 @@ import {
   ValidateTokenAPIResponse,
   ValidateTokenArguments,
   ValidateTokenResponse,
-  WalletRoleAPIResponse,
   HasOrgRoleArguments,
   PutOrganizationArguments,
   GetOrgMembershipsForUserArguments,
@@ -26,9 +23,7 @@ import {
   GetUsersArguments,
   GetUsersResponse,
   PutUserMetadataArguments,
-  PutUserMetadataResponse,
   GetUserByIDArguments,
-  GetUserByIDResponse,
   GetFileByIDArguments,
   ListFilesResponse,
   ListFilesArguments,
@@ -43,6 +38,11 @@ import {
   GetPresignedURLForFileArguments,
   GetPresignedURLForFileResponse,
   HasRoleTokenArguments,
+  UserResponse,
+  CreateUserArguments,
+  AssignedRoleAPIResponse,
+  RemoveAssignedRoleFromUserArguments,
+  AddAssignedRoleToUserArguments,
 } from '@slashauth/types';
 import { signQuery, signBody } from './query';
 import { base64Decode, checkBlobStatus } from './utils/strings';
@@ -305,25 +305,58 @@ export class SlashauthClient {
     );
   }
 
-  async addWalletToRoleForOrganization({
-    organizationID,
-    wallet,
+  async addAssignedRoleToUser({
+    userID,
     role,
-  }: AddWalletToRoleOrganizationArguments): Promise<
-    rm.IRestResponse<WalletRoleAPIResponse>
+    organizationID,
+  }: AddAssignedRoleToUserArguments): Promise<
+    rm.IRestResponse<AssignedRoleAPIResponse>
   > {
     const body = signBody({
       input: {
-        wallet,
         role,
       },
       secret: this.client_secret,
     });
 
-    return await this.apiClient.create<WalletRoleAPIResponse>(
-      `/s/${this.client_id}/organizations/${organizationID}/wallet_role`,
-      body
-    );
+    let url: string;
+    if (organizationID) {
+      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}/assigned_role`;
+    } else {
+      url = `/s/${this.client_id}/users/${userID}/assigned_role`;
+    }
+
+    return await this.apiClient.create<AssignedRoleAPIResponse>(url, body);
+  }
+
+  async removeAssignedRoleFromUser({
+    userID,
+    role,
+    organizationID,
+  }: RemoveAssignedRoleFromUserArguments): Promise<
+    rm.IRestResponse<AssignedRoleAPIResponse>
+  > {
+    const encodedRole = Buffer.from(role, 'utf8').toString('base64');
+
+    const urlParams = signQuery({
+      input: {
+        role: encodedRole,
+      },
+      secret: this.client_secret,
+    });
+
+    let url: string;
+    if (organizationID) {
+      url = `/s/${this.client_id}/organizations/${organizationID}/users/${userID}/assigned_role`;
+    } else {
+      url = `/s/${this.client_id}/users/${userID}/assigned_role`;
+    }
+
+    return await this.apiClient.del<AssignedRoleAPIResponse>(url, {
+      queryParameters: {
+        params: urlParams,
+      },
+    });
   }
 
   async deleteRoleRequirementForOrganization({
@@ -341,33 +374,6 @@ export class SlashauthClient {
 
     return await this.apiClient.del<RoleRequirementAPIResponse>(
       `/s/${this.client_id}/organizations/${organizationID}/role_requirement`,
-      {
-        queryParameters: {
-          params: urlParams,
-        },
-      }
-    );
-  }
-
-  async deleteRoleFromWalletForOrganization({
-    organizationID,
-    wallet,
-    role,
-  }: DeleteRoleFromWalletOrganizationArguments): Promise<
-    rm.IRestResponse<WalletRoleAPIResponse>
-  > {
-    const encodedRole = Buffer.from(role, 'utf8').toString('base64');
-
-    const urlParams = signQuery({
-      input: {
-        wallet,
-        role: encodedRole,
-      },
-      secret: this.client_secret,
-    });
-
-    return await this.apiClient.del<WalletRoleAPIResponse>(
-      `/s/${this.client_id}/organizations/${organizationID}/wallet_role`,
       {
         queryParameters: {
           params: urlParams,
@@ -426,7 +432,7 @@ export class SlashauthClient {
   async getUserByID({
     userID,
     organizationID,
-  }: GetUserByIDArguments): Promise<rm.IRestResponse<GetUserByIDResponse>> {
+  }: GetUserByIDArguments): Promise<rm.IRestResponse<UserResponse>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -445,7 +451,7 @@ export class SlashauthClient {
       url = `/s/${this.client_id}/users/${userID}`;
     }
 
-    return this.apiClient.get<GetUserByIDResponse>(url, {
+    return this.apiClient.get<UserResponse>(url, {
       queryParameters: {
         params: urlParams,
       },
@@ -484,14 +490,33 @@ export class SlashauthClient {
     });
   }
 
+  async createUser({
+    wallet,
+    email,
+    nickname,
+    metadata,
+  }: CreateUserArguments): Promise<rm.IRestResponse<UserResponse>> {
+    const body = signBody({
+      input: {
+        wallet,
+        email,
+        nickname,
+        metadata,
+      },
+      secret: this.client_secret,
+    });
+
+    const url = `/s/${this.client_id}/users`;
+
+    return await this.apiClient.create<UserResponse>(url, body);
+  }
+
   async updateUserMetadata({
     userID,
     nickname,
     metadata,
     organizationID,
-  }: PutUserMetadataArguments): Promise<
-    rm.IRestResponse<PutUserMetadataResponse>
-  > {
+  }: PutUserMetadataArguments): Promise<rm.IRestResponse<UserResponse>> {
     const body = signBody({
       input: {
         nickname,
@@ -507,7 +532,7 @@ export class SlashauthClient {
       url = `/s/${this.client_id}/users/${userID}`;
     }
 
-    return await this.apiClient.replace<PutUserMetadataResponse>(url, body);
+    return await this.apiClient.replace<UserResponse>(url, body);
   }
 
   // FILES

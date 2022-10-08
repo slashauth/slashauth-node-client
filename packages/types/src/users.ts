@@ -16,10 +16,6 @@ export type GetUserByIDArguments = {
   organizationID?: string;
 };
 
-export type GetUserByIDResponse = {
-  data: UserRecord;
-};
-
 export type GetUsersArguments = {
   organizationID?: string;
   cursor?: string;
@@ -31,6 +27,13 @@ export type GetUsersResponse = {
   cursor?: string;
 };
 
+export type CreateUserArguments = {
+  wallet?: string;
+  email?: string;
+  nickname?: string;
+  metadata?: ObjectMap;
+};
+
 export type PutUserMetadataArguments = {
   userID: string;
   nickname?: string;
@@ -38,6 +41,6 @@ export type PutUserMetadataArguments = {
   organizationID?: string;
 };
 
-export type PutUserMetadataResponse = {
+export type UserResponse = {
   data: UserRecord;
 };

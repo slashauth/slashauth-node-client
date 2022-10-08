@@ -1,5 +1,11 @@
 import { ObjectMap } from './utils';
 
+type UserRoleType = {
+  AssignedRole: 'ASSIGNED_ROLE';
+  RoleRequirement: 'ROLE_REQUIREMENT';
+  WalletRole: 'WALLET_ROLE';
+};
+
 export type HasRoleArguments = {
   address: string;
   role: string;
@@ -30,9 +36,12 @@ export type RoleRequirementAPIResponse = {
   tokenTypeID?: number;
 };
 
-export type WalletRoleAPIResponse = {
-  wallet: string;
-  roleLevels: string[];
+export type AssignedRoleAPIResponse = {
+  type: UserRoleType;
+  level: {
+    name: string;
+    description?: string;
+  };
 };
 
 export type GetAppRoleMetadataArguments = {
@@ -46,4 +55,16 @@ export type UpdateAppRoleMetadataArguments = {
 
 export type AppRoleMetadataResponse = {
   data: ObjectMap;
+};
+
+export type AddAssignedRoleToUserArguments = {
+  userID: string;
+  role: string;
+  organizationID?: string;
+};
+
+export type RemoveAssignedRoleFromUserArguments = {
+  userID: string;
+  organizationID?: string;
+  role: string;
 };

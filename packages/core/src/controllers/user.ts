@@ -1,4 +1,3 @@
-import * as rm from 'typed-rest-client';
 import {
   AddAssignedRoleToUserArguments,
   AssignedRoleAPIResponse,
@@ -20,6 +19,7 @@ import {
   ValidateTokenArguments,
   ValidateTokenResponse,
 } from '@slashauth/types';
+import { WrappedClient, SlashauthResponse } from '../client';
 import { signBody, signQuery } from '../utils/query';
 import { base64Decode } from '../utils/strings';
 import { Controller } from './controller';
@@ -31,7 +31,7 @@ export class UserController extends Controller {
   constructor(
     client_id: string,
     client_secret: string,
-    apiClient: rm.RestClient
+    apiClient: WrappedClient
   ) {
     super(client_id, client_secret, apiClient);
   }
@@ -104,7 +104,7 @@ export class UserController extends Controller {
     userID,
     role,
     organizationID,
-  }: HasRoleArguments): Promise<rm.IRestResponse<HasRoleAPIResponse>> {
+  }: HasRoleArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = signQuery({
@@ -127,7 +127,7 @@ export class UserController extends Controller {
     address,
     role,
     organizationID,
-  }: HasRoleWalletArguments): Promise<rm.IRestResponse<HasRoleAPIResponse>> {
+  }: HasRoleWalletArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = signQuery({
@@ -150,7 +150,7 @@ export class UserController extends Controller {
     token,
     role,
     organizationID,
-  }: HasRoleTokenArguments): Promise<rm.IRestResponse<HasRoleAPIResponse>> {
+  }: HasRoleTokenArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = {
@@ -178,7 +178,7 @@ export class UserController extends Controller {
   async getOrgMemberships({
     userID,
   }: GetOrgMembershipsForUserArguments): Promise<
-    rm.IRestResponse<GetOrgMembershipsForUserAPIResponse>
+    SlashauthResponse<GetOrgMembershipsForUserAPIResponse>
   > {
     const urlParams = signQuery({
       input: {
@@ -200,7 +200,7 @@ export class UserController extends Controller {
   async getUserByID({
     userID,
     organizationID,
-  }: GetUserByIDArguments): Promise<rm.IRestResponse<UserResponse>> {
+  }: GetUserByIDArguments): Promise<SlashauthResponse<UserResponse>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -224,7 +224,7 @@ export class UserController extends Controller {
   async getUsers({
     organizationID,
     cursor,
-  }: GetUsersArguments): Promise<rm.IRestResponse<GetUsersResponse>> {
+  }: GetUsersArguments): Promise<SlashauthResponse<GetUsersResponse>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -254,7 +254,7 @@ export class UserController extends Controller {
     phoneNumber,
     nickname,
     metadata,
-  }: CreateUserArguments): Promise<rm.IRestResponse<UserResponse>> {
+  }: CreateUserArguments): Promise<SlashauthResponse<UserResponse>> {
     const body = signBody({
       input: {
         wallet,
@@ -276,7 +276,7 @@ export class UserController extends Controller {
     nickname,
     metadata,
     organizationID,
-  }: PutUserMetadataArguments): Promise<rm.IRestResponse<UserResponse>> {
+  }: PutUserMetadataArguments): Promise<SlashauthResponse<UserResponse>> {
     const body = signBody({
       input: {
         nickname,
@@ -295,7 +295,7 @@ export class UserController extends Controller {
     role,
     organizationID,
   }: AddAssignedRoleToUserArguments): Promise<
-    rm.IRestResponse<AssignedRoleAPIResponse>
+    SlashauthResponse<AssignedRoleAPIResponse>
   > {
     const body = signBody({
       input: {
@@ -317,7 +317,7 @@ export class UserController extends Controller {
     role,
     organizationID,
   }: RemoveAssignedRoleFromUserArguments): Promise<
-    rm.IRestResponse<AssignedRoleAPIResponse>
+    SlashauthResponse<AssignedRoleAPIResponse>
   > {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 

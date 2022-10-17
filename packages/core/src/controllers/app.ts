@@ -4,7 +4,7 @@ import {
   RoleRestrictedDataAPIResponse,
   UpdateRoleRestrictedDataArguments,
 } from '@slashauth/types';
-import * as rm from 'typed-rest-client';
+import { WrappedClient, SlashauthResponse } from '../client';
 import { signQuery, signBody } from '../utils/query';
 import { Controller } from './controller';
 
@@ -12,19 +12,19 @@ export class AppController extends Controller {
   constructor(
     client_id: string,
     client_secret: string,
-    apiClient: rm.RestClient
+    apiClient: WrappedClient
   ) {
     super(client_id, client_secret, apiClient);
   }
 
-  async getInfo(): Promise<rm.IRestResponse<GetInfoResponse>> {
+  async getInfo(): Promise<SlashauthResponse<GetInfoResponse>> {
     return this.apiClient.get<GetInfoResponse>(`/s/${this.client_id}`);
   }
 
   async getRoleRestrictedData({
     role,
   }: GetRoleRestrictedDataArguments): Promise<
-    rm.IRestResponse<RoleRestrictedDataAPIResponse>
+    SlashauthResponse<RoleRestrictedDataAPIResponse>
   > {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
@@ -50,7 +50,7 @@ export class AppController extends Controller {
     role,
     metadata,
   }: UpdateRoleRestrictedDataArguments): Promise<
-    rm.IRestResponse<RoleRestrictedDataAPIResponse>
+    SlashauthResponse<RoleRestrictedDataAPIResponse>
   > {
     const body = signBody({
       input: {

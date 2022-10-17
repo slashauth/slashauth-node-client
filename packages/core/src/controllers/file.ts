@@ -16,7 +16,7 @@ import {
   BlobStatus,
 } from '@slashauth/types';
 import axios from 'axios';
-import * as rm from 'typed-rest-client';
+import { WrappedClient, SlashauthResponse } from '../client';
 import { signQuery, signBody } from '../utils/query';
 import { checkBlobStatus } from '../utils/strings';
 import { getBaseURL } from '../utils/url';
@@ -27,7 +27,7 @@ export class FileController extends Controller {
   constructor(
     client_id: string,
     client_secret: string,
-    apiClient: rm.RestClient
+    apiClient: WrappedClient
   ) {
     super(client_id, client_secret, apiClient);
   }
@@ -35,7 +35,7 @@ export class FileController extends Controller {
   async getFileByID({
     id,
     organizationID,
-  }: GetFileByIDArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+  }: GetFileByIDArguments): Promise<SlashauthResponse<CRUDFileResponse>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -60,7 +60,7 @@ export class FileController extends Controller {
     id,
     organizationID,
   }: GetPresignedURLForFileArguments): Promise<
-    rm.IRestResponse<GetPresignedURLForFileResponse>
+    SlashauthResponse<GetPresignedURLForFileResponse>
   > {
     const input: { [key: string]: string } = {};
 
@@ -85,7 +85,7 @@ export class FileController extends Controller {
   async listFiles({
     organizationID,
     cursor,
-  }: ListFilesArguments): Promise<rm.IRestResponse<ListFilesResponse>> {
+  }: ListFilesArguments): Promise<SlashauthResponse<ListFilesResponse>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -117,19 +117,19 @@ export class FileController extends Controller {
     rolesRequired,
     mimeType,
     file,
-  }: AddFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
-    const blobUpload = await this.createBlobUpload({
+  }: AddFileArguments): Promise<SlashauthResponse<CRUDFileResponse>> {
+    const [blobUpload] = await this.createBlobUpload({
       organizationID,
       wallet: userID,
       mimeType,
       fileSize: file.length, // TODO: Change this
     });
 
-    if (!blobUpload?.result) {
+    if (!blobUpload) {
       throw new Error('Failed to upload file');
     }
 
-    const uploadURL = blobUpload.result.data.signedUrl;
+    const { signedUrl: uploadURL, id } = blobUpload.data;
 
     await axios({
       method: 'PUT',
@@ -141,14 +141,14 @@ export class FileController extends Controller {
     });
 
     await this.updateBlobUploadStatus({
-      id: blobUpload.result.data.id,
+      id,
       organizationID,
       status: BlobStatus.COMPLETED,
     });
 
     return this.createFile({
       organizationID,
-      blobID: blobUpload.result.data.id,
+      blobID: id,
       wallet: userID,
       name,
       description,
@@ -162,7 +162,7 @@ export class FileController extends Controller {
     name,
     description,
     rolesRequired,
-  }: UpdateFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+  }: UpdateFileArguments): Promise<SlashauthResponse<CRUDFileResponse>> {
     const body = signBody({
       input: {
         name,
@@ -180,7 +180,7 @@ export class FileController extends Controller {
   async deleteFile({
     id,
     organizationID,
-  }: DeleteFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+  }: DeleteFileArguments): Promise<SlashauthResponse<CRUDFileResponse>> {
     const urlParams = signQuery({
       input: {}, // TODO: Does this need to exist?
       secret: this.client_secret,
@@ -202,7 +202,7 @@ export class FileController extends Controller {
     name,
     description,
     rolesRequired,
-  }: CreateFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+  }: CreateFileArguments): Promise<SlashauthResponse<CRUDFileResponse>> {
     const body = signBody({
       input: {
         blobID,
@@ -226,7 +226,7 @@ export class FileController extends Controller {
     mimeType,
     fileSize,
   }: CreateBlobUploadArguments): Promise<
-    rm.IRestResponse<CreateBlobUploadResponse>
+    SlashauthResponse<CreateBlobUploadResponse>
   > {
     const body = signBody({
       input: {
@@ -247,7 +247,7 @@ export class FileController extends Controller {
     organizationID,
     status,
   }: UpdateBlobUploadStatusArguments): Promise<
-    rm.IRestResponse<UpdateBlobUploadStatusResponse>
+    SlashauthResponse<UpdateBlobUploadStatusResponse>
   > {
     const statusString = checkBlobStatus(status);
     const body = signBody({

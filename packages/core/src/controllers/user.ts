@@ -4,11 +4,14 @@ import {
   CreateUserArguments,
   DecodedToken,
   GetOrgMembershipsForUserAPIResponse,
+  Membership,
   GetOrgMembershipsForUserArguments,
   GetUserByIDArguments,
   GetUsersArguments,
   GetUsersResponse,
+  UserRecord,
   HasRoleAPIResponse,
+  HasRole,
   HasRoleArguments,
   HasRoleTokenArguments,
   HasRoleWalletArguments,
@@ -25,6 +28,10 @@ import { base64Decode } from '../utils/strings';
 import { Controller } from './controller';
 import { getBaseURL } from '../utils/url';
 
+const transformResponse =
+  <I, O>(responseMapper: (data: I | null) => SlashauthResponse<O>['0']) =>
+  ([data, ...res]: SlashauthResponse<I>): SlashauthResponse<O> =>
+    [responseMapper(data), ...res];
 // TODO: Need to add:
 // - How do we add a user to an org?
 export class UserController extends Controller {
@@ -40,7 +47,7 @@ export class UserController extends Controller {
     token,
   }: ValidateTokenArguments): Promise<ValidateTokenResponse> {
     try {
-      const resp = await this.apiClient.get<ValidateTokenAPIResponse>(
+      const [_, meta] = await this.apiClient.get<ValidateTokenAPIResponse>(
         `/validate_token`,
         {
           queryParameters: {
@@ -52,7 +59,7 @@ export class UserController extends Controller {
         }
       );
 
-      if (!resp || !resp.statusCode || resp.statusCode !== 200) {
+      if (!meta || meta.statusCode !== 200) {
         throw new Error('token is not valid');
       }
 
@@ -73,12 +80,9 @@ export class UserController extends Controller {
 
       const getWalletAddress = async (): Promise<string | null> => {
         if (isUserID) {
-          const user = await this.getUserByID({ userID: decodedClaims.sub });
-          if (user.result?.data.wallet) {
-            return user.result?.data.wallet;
-          } else {
-            return null;
-          }
+          const [user] = await this.getUserByID({ userID: decodedClaims.sub });
+
+          return user && user.wallet;
         } else {
           // We already have the wallet address, return.
           return decodedClaims.sub;
@@ -104,7 +108,7 @@ export class UserController extends Controller {
     userID,
     role,
     organizationID,
-  }: HasRoleArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
+  }: HasRoleArguments): Promise<SlashauthResponse<HasRole>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = signQuery({
@@ -118,16 +122,18 @@ export class UserController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/has_role`;
 
-    return await this.apiClient.get<HasRoleAPIResponse>(url, {
-      queryParameters: { params: urlParams },
-    });
+    return await this.apiClient
+      .get<HasRoleAPIResponse>(url, {
+        queryParameters: { params: urlParams },
+      })
+      .then(transformResponse((res) => res && res.hasRole));
   }
 
   async hasRoleWallet({
     address,
     role,
     organizationID,
-  }: HasRoleWalletArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
+  }: HasRoleWalletArguments): Promise<SlashauthResponse<HasRole>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = signQuery({
@@ -141,16 +147,18 @@ export class UserController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/has_role`;
 
-    return await this.apiClient.get<HasRoleAPIResponse>(url, {
-      queryParameters: { params: urlParams },
-    });
+    return await this.apiClient
+      .get<HasRoleAPIResponse>(url, {
+        queryParameters: { params: urlParams },
+      })
+      .then(transformResponse((res) => res && res.hasRole));
   }
 
   async hasRoleToken({
     token,
     role,
     organizationID,
-  }: HasRoleTokenArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
+  }: HasRoleTokenArguments): Promise<SlashauthResponse<HasRole>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = {
@@ -165,20 +173,22 @@ export class UserController extends Controller {
       url = `/p/${this.client_id}/has_role`;
     }
 
-    return this.apiClient.get<HasRoleAPIResponse>(url, {
-      additionalHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-      queryParameters: {
-        params: urlParams,
-      },
-    });
+    return this.apiClient
+      .get<HasRoleAPIResponse>(url, {
+        additionalHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+        queryParameters: {
+          params: urlParams,
+        },
+      })
+      .then(transformResponse((res) => res && res.hasRole));
   }
 
   async getOrgMemberships({
     userID,
   }: GetOrgMembershipsForUserArguments): Promise<
-    SlashauthResponse<GetOrgMembershipsForUserAPIResponse>
+    SlashauthResponse<Membership[]>
   > {
     const urlParams = signQuery({
       input: {
@@ -187,20 +197,22 @@ export class UserController extends Controller {
       secret: this.client_secret,
     });
 
-    return this.apiClient.get<GetOrgMembershipsForUserAPIResponse>(
-      `/s/${this.client_id}/org_memberships`,
-      {
-        queryParameters: {
-          params: urlParams,
-        },
-      }
-    );
+    return this.apiClient
+      .get<GetOrgMembershipsForUserAPIResponse>(
+        `/s/${this.client_id}/org_memberships`,
+        {
+          queryParameters: {
+            params: urlParams,
+          },
+        }
+      )
+      .then(transformResponse((res) => res && res.data));
   }
 
   async getUserByID({
     userID,
     organizationID,
-  }: GetUserByIDArguments): Promise<SlashauthResponse<UserResponse>> {
+  }: GetUserByIDArguments): Promise<SlashauthResponse<UserRecord>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -214,17 +226,21 @@ export class UserController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/users/${userID}`;
 
-    return this.apiClient.get<UserResponse>(url, {
-      queryParameters: {
-        params: urlParams,
-      },
-    });
+    return this.apiClient
+      .get<UserResponse>(url, {
+        queryParameters: {
+          params: urlParams,
+        },
+      })
+      .then(
+        transformResponse<UserResponse, UserRecord>((res) => res && res.data)
+      );
   }
 
   async getUsers({
     organizationID,
     cursor,
-  }: GetUsersArguments): Promise<SlashauthResponse<GetUsersResponse>> {
+  }: GetUsersArguments): Promise<SlashauthResponse<UserRecord[]>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -241,11 +257,23 @@ export class UserController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/users`;
 
-    return this.apiClient.get<GetUsersResponse>(url, {
-      queryParameters: {
-        params: urlParams,
-      },
-    });
+    return this.apiClient
+      .get<GetUsersResponse>(url, {
+        queryParameters: {
+          params: urlParams,
+        },
+      })
+      .then((response) => {
+        const [data, metadata, err] = response;
+
+        return [
+          transformResponse<GetUsersResponse, UserRecord[]>(
+            (res) => res && res.data
+          )(response)[0],
+          { ...metadata, hasMore: data?.hasMore, cursor: data?.cursor },
+          err,
+        ];
+      });
   }
 
   async createUser({
@@ -254,7 +282,7 @@ export class UserController extends Controller {
     phoneNumber,
     nickname,
     metadata,
-  }: CreateUserArguments): Promise<SlashauthResponse<UserResponse>> {
+  }: CreateUserArguments): Promise<SlashauthResponse<UserRecord>> {
     const body = signBody({
       input: {
         wallet,
@@ -268,7 +296,9 @@ export class UserController extends Controller {
 
     const url = `/s/${this.client_id}/users`;
 
-    return await this.apiClient.create<UserResponse>(url, body);
+    return await this.apiClient
+      .create<UserResponse>(url, body)
+      .then(transformResponse((res) => res && res.data));
   }
 
   async updateUserMetadata({
@@ -276,7 +306,7 @@ export class UserController extends Controller {
     nickname,
     metadata,
     organizationID,
-  }: PutUserMetadataArguments): Promise<SlashauthResponse<UserResponse>> {
+  }: PutUserMetadataArguments): Promise<SlashauthResponse<UserRecord>> {
     const body = signBody({
       input: {
         nickname,
@@ -287,7 +317,9 @@ export class UserController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/users/${userID}`;
 
-    return await this.apiClient.replace<UserResponse>(url, body);
+    return await this.apiClient
+      .replace<UserResponse>(url, body)
+      .then(transformResponse((res) => res && res.data));
   }
 
   async addAssignedRole({

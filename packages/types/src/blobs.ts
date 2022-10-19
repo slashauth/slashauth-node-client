@@ -12,10 +12,12 @@ export type CreateBlobUploadArguments = {
 };
 
 export type CreateBlobUploadResponse = {
-  data: {
-    id: string;
-    signedUrl: string;
-  };
+  data: CreatedBlobData;
+};
+
+export type CreatedBlobData = {
+  id: string;
+  signedUrl: string;
 };
 
 export type UpdateBlobUploadStatusArguments = {
@@ -25,8 +27,10 @@ export type UpdateBlobUploadStatusArguments = {
 };
 
 export type UpdateBlobUploadStatusResponse = {
-  data: {
-    id: string;
-    status: string;
-  };
+  data: UpdatedBlobData;
+};
+
+export type UpdatedBlobData = {
+  id: string;
+  status: string;
 };

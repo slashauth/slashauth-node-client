@@ -5,14 +5,14 @@ export type GetOrgMembershipsForUserArguments = {
 };
 
 export type GetOrgMembershipsForUserAPIResponse = {
-  data: [
-    {
-      clientID: string;
-      organizationID: string;
-      userID: string;
-      roles: string[];
-    }
-  ];
+  data: Membership[];
+};
+
+export type Membership = {
+  clientID: string;
+  organizationID: string;
+  userID: string;
+  roles: string[];
 };
 
 export type PostOrganizationArguments = {

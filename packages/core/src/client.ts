@@ -18,22 +18,6 @@ type TypeOfClassMethod<T, M extends keyof T> = T[M] extends Function
   ? T[M]
   : never;
 
-const wrapMethod =
-  <M>(fn: (...args: any[]) => Promise<rm.IRestResponse<any>>) =>
-  <T>(...args: any[]): Promise<SlashauthResponse<T>> =>
-    fn(...args).then(
-      (res) => [
-        res.result,
-        { headers: res.headers, statusCode: res.statusCode },
-        null,
-      ],
-      (err) => [
-        null,
-        { headers: err['responseHeaders'], statusCode: err['statusCode'] },
-        err.message,
-      ]
-    );
-
 export interface WrappedClient {
   get<T>(
     ...args: Parameters<TypeOfClassMethod<rm.RestClient, 'get'>>
@@ -69,6 +53,22 @@ export class SlashauthClient {
       identifier,
       additional.endpoint || PROD_ENDPOINT
     );
+
+    const wrapMethod =
+      <M>(fn: (...args: any[]) => Promise<rm.IRestResponse<any>>) =>
+      <T>(...args: any[]): Promise<SlashauthResponse<T>> =>
+        fn.apply(rawApiClient, args).then(
+          (res) => [
+            res.result,
+            { headers: res.headers, statusCode: res.statusCode },
+            null,
+          ],
+          (err) => [
+            null,
+            { headers: err['responseHeaders'], statusCode: err['statusCode'] },
+            err.message,
+          ]
+        );
 
     const apiClient = {
       get: wrapMethod(rawApiClient.get),

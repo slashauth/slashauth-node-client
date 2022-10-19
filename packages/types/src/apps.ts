@@ -1,7 +1,9 @@
 export type GetInfoResponse = {
-  data: {
-    clientID: string;
-    name: string;
-    description?: string;
-  };
+  data: App;
+};
+
+export type App = {
+  clientID: string;
+  name: string;
+  description?: string;
 };

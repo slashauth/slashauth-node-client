@@ -1,3 +1,4 @@
+import { ChainId } from './enums';
 import { ObjectMap } from './utils';
 
 type UserRoleType = {
@@ -32,7 +33,7 @@ export type RoleRequirementAPIResponse = {
   contract: string;
   contractType: string;
   quantity: number;
-  chainID: string;
+  chainID: ChainId;
   tokenTypeID?: number;
 };
 

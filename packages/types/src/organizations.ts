@@ -1,3 +1,5 @@
+import { ChainId } from './enums';
+
 export type GetOrgMembershipsForUserArguments = {
   userID: string;
 };
@@ -38,7 +40,7 @@ export type AddRoleRequirementOrganizationArguments = {
   contract: string;
   contractType: string;
   quantity: number;
-  chainID: string;
+  chainID: ChainId;
   tokenTypeID?: number;
   role: string;
 };

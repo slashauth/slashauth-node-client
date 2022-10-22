@@ -1,6 +1,6 @@
 {
   "name": "@slashauth/node-client",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,7 +28,7 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
-    "@slashauth/types": "^0.2.1",
+    "@slashauth/types": "^0.2.2",
     "crypto": "^1.0.1",
     "typed-rest-client": "^1.8.9"
   }

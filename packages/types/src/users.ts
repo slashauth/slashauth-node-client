@@ -30,6 +30,7 @@ export type GetUsersResponse = {
 export type CreateUserArguments = {
   wallet?: string;
   email?: string;
+  phoneNumber?: string;
   nickname?: string;
   metadata?: ObjectMap;
 };

@@ -1,5 +1,3 @@
-import { MaybeStringInput } from './utils';
-
 export type GetOrgMembershipsForUserArguments = {
   userID: string;
 };
@@ -22,8 +20,8 @@ export type PostOrganizationArguments = {
 
 export type PutOrganizationArguments = {
   organizationID: string;
-  name: MaybeStringInput;
-  description?: MaybeStringInput;
+  name?: string;
+  description: string;
 };
 
 export type UpsertOrganizationAPIResponse = {

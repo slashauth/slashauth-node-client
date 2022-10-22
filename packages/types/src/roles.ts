@@ -29,7 +29,7 @@ export type HasRoleAPIResponse = {
 
 export type RoleRequirementAPIResponse = {
   id: string;
-  roleLevel: string;
+  role: string;
   contract: string;
   contractType: string;
   quantity: number;

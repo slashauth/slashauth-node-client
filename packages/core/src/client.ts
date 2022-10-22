@@ -493,6 +493,7 @@ export class SlashauthClient {
   async createUser({
     wallet,
     email,
+    phoneNumber,
     nickname,
     metadata,
   }: CreateUserArguments): Promise<rm.IRestResponse<UserResponse>> {
@@ -500,6 +501,7 @@ export class SlashauthClient {
       input: {
         wallet,
         email,
+        phoneNumber,
         nickname,
         metadata,
       },

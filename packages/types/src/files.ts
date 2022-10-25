@@ -1,5 +1,3 @@
-import { MaybeStringInput } from './utils';
-
 export type FileRecord = {
   id: string;
   blobID: string;
@@ -56,8 +54,8 @@ export type CRUDFileResponse = {
 export type UpdateFileArguments = {
   id: string;
   organizationID?: string;
-  name?: MaybeStringInput;
-  description?: MaybeStringInput;
+  name?: string;
+  description?: string;
   rolesRequired?: string[];
 };
 

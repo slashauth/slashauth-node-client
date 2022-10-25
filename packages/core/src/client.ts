@@ -416,7 +416,7 @@ export class SlashauthClient {
   > {
     const body = signBody({
       input: {
-        roleLevel: role,
+        role,
         metadata,
       },
       secret: this.client_secret,

@@ -8,19 +8,21 @@ type UserRoleType = {
 };
 
 export type HasRoleArguments = {
+  userID: string;
+  role: string;
+  organizationID?: string;
+};
+
+export type HasRoleWalletArguments = {
   address: string;
   role: string;
+  organizationID?: string;
 };
 
 export type HasRoleTokenArguments = {
   token: string;
   role: string;
-};
-
-export type HasOrgRoleArguments = {
-  organizationID: string;
-  address: string;
-  role: string;
+  organizationID?: string;
 };
 
 export type HasRoleAPIResponse = {
@@ -45,16 +47,16 @@ export type AssignedRoleAPIResponse = {
   };
 };
 
-export type GetAppRoleMetadataArguments = {
+export type GetRoleRestrictedDataArguments = {
   role: string;
 };
 
-export type UpdateAppRoleMetadataArguments = {
+export type UpdateRoleRestrictedDataArguments = {
   role: string;
   metadata: ObjectMap;
 };
 
-export type AppRoleMetadataResponse = {
+export type RoleRestrictedDataAPIResponse = {
   data: ObjectMap;
 };
 

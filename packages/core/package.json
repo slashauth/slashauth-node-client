@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@slashauth/types": "^0.2.2",
+    "axios": "^1.2.0",
     "crypto": "^1.0.1",
     "typed-rest-client": "^1.8.9"
   }

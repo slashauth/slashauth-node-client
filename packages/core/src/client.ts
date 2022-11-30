@@ -1,4 +1,5 @@
 import * as rm from 'typed-rest-client';
+import axios from 'axios';
 import { Config, PROD_ENDPOINT } from './config';
 import {
   AddRoleRequirementOrganizationArguments,
@@ -27,10 +28,12 @@ import {
   GetFileByIDArguments,
   ListFilesResponse,
   ListFilesArguments,
+  BlobStatus,
   CreateBlobUploadArguments,
   CreateBlobUploadResponse,
   UpdateBlobUploadStatusArguments,
   UpdateBlobUploadStatusResponse,
+  AddFileArguments,
   CRUDFileResponse,
   CreateFileArguments,
   UpdateFileArguments,
@@ -637,6 +640,52 @@ export class SlashauthClient {
     const url = `${getBaseURL(this.client_id, organizationID)}/files`;
 
     return await this.apiClient.create<CRUDFileResponse>(url, body);
+  }
+
+  async addFile({
+    organizationID,
+    userID,
+    name,
+    description,
+    rolesRequired,
+    mimeType,
+    file,
+  }: AddFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+    const blobUpload = await this.createBlobUpload({
+      organizationID,
+      wallet: userID,
+      mimeType,
+      fileSize: file.size,
+    });
+
+    if (!blobUpload?.result) {
+      throw new Error('Failed to upload file');
+    }
+
+    const uploadURL = blobUpload.result.data.signedURL;
+    await axios({
+      method: 'PUT',
+      url: uploadURL,
+      data: file,
+      headers: {
+        'Content-Type': mimeType,
+      },
+    });
+
+    await this.updateBlobUploadStatus({
+      id: blobUpload.result.data.id,
+      organizationID,
+      status: BlobStatus.COMPLETED,
+    });
+
+    return this.createFile({
+      organizationID,
+      blobID: blobUpload.result.data.id,
+      wallet: userID,
+      name,
+      description,
+      rolesRequired,
+    });
   }
 
   async updateFile({

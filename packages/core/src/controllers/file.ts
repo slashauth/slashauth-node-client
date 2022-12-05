@@ -56,7 +56,7 @@ export class FileController extends Controller {
     });
   }
 
-  async getPresignedURLForFile({
+  async getPresignedURL({
     id,
     organizationID,
   }: GetPresignedURLForFileArguments): Promise<
@@ -122,14 +122,15 @@ export class FileController extends Controller {
       organizationID,
       wallet: userID,
       mimeType,
-      fileSize: file.size,
+      fileSize: file.length, // TODO: Change this
     });
 
     if (!blobUpload?.result) {
       throw new Error('Failed to upload file');
     }
 
-    const uploadURL = blobUpload.result.data.signedURL;
+    const uploadURL = blobUpload.result.data.signedUrl;
+
     await axios({
       method: 'PUT',
       url: uploadURL,
@@ -235,6 +236,8 @@ export class FileController extends Controller {
       },
       secret: this.client_secret,
     });
+
+    console.log('body: ', body);
 
     const url = `${getBaseURL(this.client_id, organizationID)}/blobs`;
 

@@ -45,7 +45,7 @@ export type AddFileArguments = {
   description?: string;
   rolesRequired: string[];
   mimeType: string;
-  file: File;
+  file: Buffer;
 };
 
 export type CreateFileArguments = {

@@ -1,9 +1,9 @@
 import * as rm from 'typed-rest-client';
 import {
   AddRoleRequirementOrganizationArguments,
-  DeleteRoleRequirementOrganizationArguments,
   PostOrganizationArguments,
   PutOrganizationArguments,
+  RemoveRoleRequirementOrganizationArguments,
   RoleRequirementAPIResponse,
   UpsertOrganizationAPIResponse,
 } from '@slashauth/types';
@@ -89,10 +89,10 @@ export class OrganizationController extends Controller {
     );
   }
 
-  async deleteRoleRequirement({
+  async removeRoleRequirement({
     organizationID,
     roleID,
-  }: DeleteRoleRequirementOrganizationArguments): Promise<
+  }: RemoveRoleRequirementOrganizationArguments): Promise<
     rm.IRestResponse<RoleRequirementAPIResponse>
   > {
     const urlParams = signQuery({

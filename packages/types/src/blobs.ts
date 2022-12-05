@@ -14,7 +14,7 @@ export type CreateBlobUploadArguments = {
 export type CreateBlobUploadResponse = {
   data: {
     id: string;
-    signedURL: string;
+    signedUrl: string;
   };
 };
 

@@ -38,6 +38,16 @@ export type ListFilesResponse = {
   cursor?: string;
 };
 
+export type AddFileArguments = {
+  organizationID?: string;
+  userID: string;
+  name: string;
+  description?: string;
+  rolesRequired: string[];
+  mimeType: string;
+  file: Buffer;
+};
+
 export type CreateFileArguments = {
   organizationID?: string;
   blobID: string;

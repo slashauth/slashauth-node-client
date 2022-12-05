@@ -45,7 +45,7 @@ export type AddRoleRequirementOrganizationArguments = {
   role: string;
 };
 
-export type DeleteRoleRequirementOrganizationArguments = {
+export type RemoveRoleRequirementOrganizationArguments = {
   organizationID: string;
   roleID: string;
 };

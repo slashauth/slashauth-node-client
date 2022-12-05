@@ -1,4 +1,4 @@
-export type GetAppResponse = {
+export type GetInfoResponse = {
   data: {
     clientID: string;
     name: string;

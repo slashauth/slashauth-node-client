@@ -31,7 +31,7 @@ export class SlashauthMiddlewareExpress {
       const authHeader = req.headers.authorization || '';
       const token = parseToken(authHeader);
 
-      const tokenResp = await this.client.validateToken({
+      const tokenResp = await this.client.user.validateToken({
         token,
       });
 
@@ -57,7 +57,7 @@ export class SlashauthMiddlewareExpress {
     ) => {
       const authHeader = req.headers.authorization || '';
       const token = parseToken(authHeader);
-      const hasRoleResp = await this.client.hasRoleToken({
+      const hasRoleResp = await this.client.user.hasRoleToken({
         role,
         token,
       });

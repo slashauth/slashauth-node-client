@@ -4,7 +4,7 @@ import { parseToken } from './utils/token';
 
 export type AuthedNextApiRequest = {
   slashauth: {
-    address?: string;
+    wallet?: string;
     userID?: string;
     isAuthed?: boolean;
     getWalletAddress(): Promise<string | null>;
@@ -62,7 +62,7 @@ export class SlashauthMiddlewareNext {
       });
 
       req.slashauth = {
-        address: tokenResp.address,
+        wallet: tokenResp.wallet,
         userID: tokenResp.userID,
         isAuthed: true,
         getWalletAddress: tokenResp.getWalletAddress,

@@ -237,8 +237,6 @@ export class FileController extends Controller {
       secret: this.client_secret,
     });
 
-    console.log('body: ', body);
-
     const url = `${getBaseURL(this.client_id, organizationID)}/blobs`;
 
     return await this.apiClient.create<CreateBlobUploadResponse>(url, body);

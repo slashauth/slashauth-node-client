@@ -86,13 +86,13 @@ export class UserController extends Controller {
       };
 
       return {
+        type: decodedClaims.type,
         userID: isUserID ? decodedClaims.sub : undefined,
-        address: isUserID ? undefined : decodedClaims.sub,
+        wallet: isUserID ? decodedClaims.wallet : decodedClaims.sub,
         clientID: decodedClaims.client_id,
         issuedAt: decodedClaims.iat,
         expiresAt: decodedClaims.exp,
         issuer: decodedClaims.iss,
-        walletType: decodedClaims.wallet_type,
         getWalletAddress,
       };
     } catch (err) {

@@ -6,7 +6,7 @@ declare global {
   namespace Express {
     interface Request {
       slashauth: {
-        address?: string;
+        wallet?: string;
         userID?: string;
         isAuthed?: boolean;
         getWalletAddress(): Promise<string | null>;
@@ -36,7 +36,7 @@ export class SlashauthMiddlewareExpress {
       });
 
       req.slashauth = {
-        address: tokenResp.address,
+        wallet: tokenResp.wallet,
         userID: tokenResp.userID,
         isAuthed: true,
         getWalletAddress: tokenResp.getWalletAddress,

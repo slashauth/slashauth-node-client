@@ -9,6 +9,7 @@ declare global {
         wallet?: string;
         userID?: string;
         isAuthed?: boolean;
+        clientID?: string;
         getWalletAddress(): Promise<string | null>;
       };
     }
@@ -22,31 +23,32 @@ export class SlashauthMiddlewareExpress {
     this.client = client;
   }
 
-  validateCredentials = async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ): Promise<void> => {
-    try {
-      const authHeader = req.headers.authorization || '';
-      const token = parseToken(authHeader);
+  parseAuthToken = () => {
+    return async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ): Promise<void> => {
+      try {
+        const authHeader = req.headers.authorization || '';
+        const token = parseToken(authHeader);
 
-      const tokenResp = await this.client.user.validateToken({
-        token,
-      });
+        const tokenResp = await this.client.user.validateToken({
+          token,
+        });
 
-      req.slashauth = {
-        wallet: tokenResp.wallet,
-        userID: tokenResp.userID,
-        isAuthed: true,
-        getWalletAddress: tokenResp.getWalletAddress,
-      };
-    } catch (err) {
-      throw err;
-    }
+        req.slashauth = {
+          wallet: tokenResp.wallet,
+          userID: tokenResp.userID,
+          isAuthed: true,
+          clientID: tokenResp.clientID,
+          getWalletAddress: tokenResp.getWalletAddress,
+        };
+      } catch (err) {}
 
-    next();
-    return;
+      next();
+      return;
+    };
   };
 
   hasRole = (role: string) => {

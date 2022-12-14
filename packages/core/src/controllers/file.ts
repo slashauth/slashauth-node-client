@@ -20,7 +20,11 @@ import {
   BlobStatus,
 } from '@slashauth/types';
 import axios from 'axios';
-import { WrappedClient, SlashauthResponse } from '../client';
+import {
+  WrappedClient,
+  SlashauthResponse,
+  SlashauthResponseWithPagination,
+} from '../client';
 import { signQuery, signBody } from '../utils/query';
 import { checkBlobStatus } from '../utils/strings';
 import { getBaseURL } from '../utils/url';
@@ -104,7 +108,9 @@ export class FileController extends Controller {
   async listFiles({
     organizationID,
     cursor,
-  }: ListFilesArguments): Promise<SlashauthResponse<FileRecord[]>> {
+  }: ListFilesArguments): Promise<
+    SlashauthResponseWithPagination<FileRecord[]>
+  > {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -130,7 +136,7 @@ export class FileController extends Controller {
           transformResponse<ListFilesResponse, FileRecord[]>(
             (res) => res && res.data
           )(response)[0],
-          { ...metadata, hasMore: data?.hasMore, cursor: data?.cursor },
+          { ...metadata, hasMore: !!data?.hasMore, cursor: data?.cursor },
           err,
         ];
       });

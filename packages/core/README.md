@@ -4,6 +4,8 @@
 
 This package provides a client to Slashauth to use from your node backend. Authorize any wallet within your app with a single API call.
 
+[Learn how to use SlashAuth in your project by reading the docs](https://docs.slashauth.com/)
+
 ## Features
 
 - 🔥 Login and token gating out of the box
@@ -23,7 +25,7 @@ Or Yarn
 
 ## Initial steps
 
-In order to use Slashauth you must first create a Slashauth app. Create one [here](https://app.slashauth.xyz). Take note of your client ID and client secret because you'll need these in the next step.
+In order to use Slashauth you must first create a Slashauth app. Create one [here](https://app.slashauth.com). Take note of your client ID and client secret because you'll need these in the next step.
 
 ## Usage
 
@@ -36,13 +38,16 @@ const slashauthClient = new SlashauthClient(<your client id>, <your client secre
 Use the client to authorize whether a wallet has a specified role:
 
 ```ts
-slashauthClient
-  .hasRole({
-    address: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B',
-    role: 'admin',
-  })
-  .then((response) => console.log('has role? ', r.result.hasRole))
-  .catch((e) => console.error(e));
+const [hasRole, , err] = await slashauthClient.hasRole({
+  address: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B',
+  role: 'admin',
+});
+
+if (err) {
+  console.log(err);
+}
+
+console.log('has role? ', hasRole);
 ```
 
 Use the client to validate a user's token. This endpoint will return a 403 for invalid tokens:
@@ -57,7 +62,7 @@ slashauthClient
       clientID: r.clientID,
       address: r.address,
       expiresAt: r.expiresAt,
-    })
+    });
   })
   .catch((e) => console.error(e));
 ```

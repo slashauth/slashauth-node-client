@@ -1,8 +1,10 @@
 import {
+  FileRecord,
   GetFileByIDArguments,
   CRUDFileResponse,
   GetPresignedURLForFileArguments,
   GetPresignedURLForFileResponse,
+  PresignedURLForFile,
   ListFilesArguments,
   ListFilesResponse,
   CreateFileArguments,
@@ -10,24 +12,31 @@ import {
   DeleteFileArguments,
   CreateBlobUploadArguments,
   CreateBlobUploadResponse,
+  CreatedBlobData,
   UpdateBlobUploadStatusArguments,
   UpdateBlobUploadStatusResponse,
+  UpdatedBlobData,
   AddFileArguments,
   BlobStatus,
 } from '@slashauth/types';
 import axios from 'axios';
-import * as rm from 'typed-rest-client';
+import { WrappedClient, SlashauthResponse } from '../client';
 import { signQuery, signBody } from '../utils/query';
 import { checkBlobStatus } from '../utils/strings';
 import { getBaseURL } from '../utils/url';
 
 import { Controller } from './controller';
 
+const transformResponse =
+  <I, O>(responseMapper: (data: I | null) => SlashauthResponse<O>['0']) =>
+  ([data, ...res]: SlashauthResponse<I>): SlashauthResponse<O> =>
+    [responseMapper(data), ...res];
+
 export class FileController extends Controller {
   constructor(
     client_id: string,
     client_secret: string,
-    apiClient: rm.RestClient
+    apiClient: WrappedClient
   ) {
     super(client_id, client_secret, apiClient);
   }
@@ -35,7 +44,7 @@ export class FileController extends Controller {
   async getFileByID({
     id,
     organizationID,
-  }: GetFileByIDArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+  }: GetFileByIDArguments): Promise<SlashauthResponse<FileRecord>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -49,18 +58,24 @@ export class FileController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/files/${id}`;
 
-    return this.apiClient.get<CRUDFileResponse>(url, {
-      queryParameters: {
-        params: urlParams,
-      },
-    });
+    return this.apiClient
+      .get<CRUDFileResponse>(url, {
+        queryParameters: {
+          params: urlParams,
+        },
+      })
+      .then(
+        transformResponse<CRUDFileResponse, FileRecord>(
+          (res) => res && res.data
+        )
+      );
   }
 
   async getPresignedURL({
     id,
     organizationID,
   }: GetPresignedURLForFileArguments): Promise<
-    rm.IRestResponse<GetPresignedURLForFileResponse>
+    SlashauthResponse<PresignedURLForFile>
   > {
     const input: { [key: string]: string } = {};
 
@@ -75,17 +90,21 @@ export class FileController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/files/${id}/url`;
 
-    return this.apiClient.get<GetPresignedURLForFileResponse>(url, {
-      queryParameters: {
-        params: urlParams,
-      },
-    });
+    return this.apiClient
+      .get<GetPresignedURLForFileResponse>(url, {
+        queryParameters: { params: urlParams },
+      })
+      .then(
+        transformResponse<GetPresignedURLForFileResponse, PresignedURLForFile>(
+          (res) => res && res.data.url
+        )
+      );
   }
 
   async listFiles({
     organizationID,
     cursor,
-  }: ListFilesArguments): Promise<rm.IRestResponse<ListFilesResponse>> {
+  }: ListFilesArguments): Promise<SlashauthResponse<FileRecord[]>> {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -102,11 +121,19 @@ export class FileController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/files`;
 
-    return this.apiClient.get<ListFilesResponse>(url, {
-      queryParameters: {
-        params: urlParams,
-      },
-    });
+    return this.apiClient
+      .get<ListFilesResponse>(url, { queryParameters: { params: urlParams } })
+      .then((response) => {
+        const [data, metadata, err] = response;
+
+        return [
+          transformResponse<ListFilesResponse, FileRecord[]>(
+            (res) => res && res.data
+          )(response)[0],
+          { ...metadata, hasMore: data?.hasMore, cursor: data?.cursor },
+          err,
+        ];
+      });
   }
 
   async addFile({
@@ -117,19 +144,19 @@ export class FileController extends Controller {
     rolesRequired,
     mimeType,
     file,
-  }: AddFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
-    const blobUpload = await this.createBlobUpload({
+  }: AddFileArguments): Promise<SlashauthResponse<FileRecord>> {
+    const [blobUpload] = await this.createBlobUpload({
       organizationID,
       wallet: userID,
       mimeType,
       fileSize: file.length, // TODO: Change this
     });
 
-    if (!blobUpload?.result) {
+    if (!blobUpload) {
       throw new Error('Failed to upload file');
     }
 
-    const uploadURL = blobUpload.result.data.signedUrl;
+    const { signedUrl: uploadURL, id } = blobUpload;
 
     await axios({
       method: 'PUT',
@@ -141,14 +168,14 @@ export class FileController extends Controller {
     });
 
     await this.updateBlobUploadStatus({
-      id: blobUpload.result.data.id,
+      id,
       organizationID,
       status: BlobStatus.COMPLETED,
     });
 
     return this.createFile({
       organizationID,
-      blobID: blobUpload.result.data.id,
+      blobID: id,
       wallet: userID,
       name,
       description,
@@ -162,7 +189,7 @@ export class FileController extends Controller {
     name,
     description,
     rolesRequired,
-  }: UpdateFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+  }: UpdateFileArguments): Promise<SlashauthResponse<FileRecord>> {
     const body = signBody({
       input: {
         name,
@@ -174,13 +201,19 @@ export class FileController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/files/${id}`;
 
-    return await this.apiClient.update<CRUDFileResponse>(url, body);
+    return await this.apiClient
+      .update<CRUDFileResponse>(url, body)
+      .then(
+        transformResponse<CRUDFileResponse, FileRecord>(
+          (res) => res && res.data
+        )
+      );
   }
 
   async deleteFile({
     id,
     organizationID,
-  }: DeleteFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+  }: DeleteFileArguments): Promise<SlashauthResponse<FileRecord>> {
     const urlParams = signQuery({
       input: {}, // TODO: Does this need to exist?
       secret: this.client_secret,
@@ -188,11 +221,17 @@ export class FileController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/files/${id}`;
 
-    return await this.apiClient.del<CRUDFileResponse>(url, {
-      queryParameters: {
-        params: urlParams,
-      },
-    });
+    return await this.apiClient
+      .del<CRUDFileResponse>(url, {
+        queryParameters: {
+          params: urlParams,
+        },
+      })
+      .then(
+        transformResponse<CRUDFileResponse, FileRecord>(
+          (res) => res && res.data
+        )
+      );
   }
 
   private async createFile({
@@ -202,7 +241,7 @@ export class FileController extends Controller {
     name,
     description,
     rolesRequired,
-  }: CreateFileArguments): Promise<rm.IRestResponse<CRUDFileResponse>> {
+  }: CreateFileArguments): Promise<SlashauthResponse<FileRecord>> {
     const body = signBody({
       input: {
         blobID,
@@ -216,7 +255,13 @@ export class FileController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/files`;
 
-    return await this.apiClient.create<CRUDFileResponse>(url, body);
+    return await this.apiClient
+      .create<CRUDFileResponse>(url, body)
+      .then(
+        transformResponse<CRUDFileResponse, FileRecord>(
+          (res) => res && res.data
+        )
+      );
   }
 
   // BLOBS
@@ -225,9 +270,7 @@ export class FileController extends Controller {
     wallet,
     mimeType,
     fileSize,
-  }: CreateBlobUploadArguments): Promise<
-    rm.IRestResponse<CreateBlobUploadResponse>
-  > {
+  }: CreateBlobUploadArguments): Promise<SlashauthResponse<CreatedBlobData>> {
     const body = signBody({
       input: {
         wallet,
@@ -239,7 +282,13 @@ export class FileController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/blobs`;
 
-    return await this.apiClient.create<CreateBlobUploadResponse>(url, body);
+    return await this.apiClient
+      .create<CreateBlobUploadResponse>(url, body)
+      .then(
+        transformResponse<CreateBlobUploadResponse, CreatedBlobData>(
+          (res) => res && res.data
+        )
+      );
   }
 
   private async updateBlobUploadStatus({
@@ -247,7 +296,7 @@ export class FileController extends Controller {
     organizationID,
     status,
   }: UpdateBlobUploadStatusArguments): Promise<
-    rm.IRestResponse<UpdateBlobUploadStatusResponse>
+    SlashauthResponse<UpdatedBlobData>
   > {
     const statusString = checkBlobStatus(status);
     const body = signBody({
@@ -259,9 +308,12 @@ export class FileController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/blobs/${id}`;
 
-    return await this.apiClient.update<UpdateBlobUploadStatusResponse>(
-      url,
-      body
-    );
+    return await this.apiClient
+      .update<UpdateBlobUploadStatusResponse>(url, body)
+      .then(
+        transformResponse<UpdateBlobUploadStatusResponse, UpdatedBlobData>(
+          (res) => res && res.data
+        )
+      );
   }
 }

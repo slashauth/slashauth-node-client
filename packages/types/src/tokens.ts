@@ -3,8 +3,10 @@ export type ValidateTokenArguments = {
 };
 
 export type ValidateTokenAPIResponse = {
-  isValid: boolean;
+  isValid: TokenValidity;
 };
+
+type TokenValidity = boolean;
 
 export type ValidateTokenResponse = {
   userID?: string;

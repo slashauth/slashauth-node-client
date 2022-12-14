@@ -59,12 +59,12 @@ export class SlashauthMiddlewareExpress {
     ) => {
       const authHeader = req.headers.authorization || '';
       const token = parseToken(authHeader);
-      const hasRoleResp = await this.client.user.hasRoleToken({
+      const [hasRole] = await this.client.user.hasRoleToken({
         role,
         token,
       });
 
-      if (hasRoleResp.result && hasRoleResp.result.hasRole) {
+      if (hasRole) {
         next();
         return;
       }

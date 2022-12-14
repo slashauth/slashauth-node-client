@@ -80,13 +80,13 @@ export class SlashauthMiddlewareNext {
       const authHeader = req.headers.authorization || '';
       const token = parseToken(authHeader);
 
-      const hasRoleResp = await this.client.user.hasRoleToken({
+      const [hasRole] = await this.client.user.hasRoleToken({
         role,
         token,
       });
 
-      if (hasRoleResp.result && hasRoleResp.result.hasRole !== undefined) {
-        return hasRoleResp.result.hasRole;
+      if (hasRole) {
+        return hasRole;
       }
 
       throw new Error('hasRole did not properly return');

@@ -1,4 +1,3 @@
-import * as rm from 'typed-rest-client';
 import {
   AddRoleRequirementOrganizationArguments,
   PostOrganizationArguments,
@@ -7,6 +6,7 @@ import {
   RoleRequirementAPIResponse,
   UpsertOrganizationAPIResponse,
 } from '@slashauth/types';
+import { WrappedClient, SlashauthResponse } from '../client';
 import { signBody, signQuery } from '../utils/query';
 import { Controller } from './controller';
 
@@ -14,7 +14,7 @@ export class OrganizationController extends Controller {
   constructor(
     client_id: string,
     client_secret: string,
-    apiClient: rm.RestClient
+    apiClient: WrappedClient
   ) {
     super(client_id, client_secret, apiClient);
   }
@@ -23,7 +23,7 @@ export class OrganizationController extends Controller {
     name,
     description,
   }: PostOrganizationArguments): Promise<
-    rm.IRestResponse<UpsertOrganizationAPIResponse>
+    SlashauthResponse<UpsertOrganizationAPIResponse>
   > {
     const body = signBody({
       input: {
@@ -44,7 +44,7 @@ export class OrganizationController extends Controller {
     name,
     description,
   }: PutOrganizationArguments): Promise<
-    rm.IRestResponse<UpsertOrganizationAPIResponse>
+    SlashauthResponse<UpsertOrganizationAPIResponse>
   > {
     const body = signBody({
       input: {
@@ -69,7 +69,7 @@ export class OrganizationController extends Controller {
     tokenTypeID,
     role,
   }: AddRoleRequirementOrganizationArguments): Promise<
-    rm.IRestResponse<RoleRequirementAPIResponse>
+    SlashauthResponse<RoleRequirementAPIResponse>
   > {
     const body = signBody({
       input: {
@@ -93,7 +93,7 @@ export class OrganizationController extends Controller {
     organizationID,
     roleID,
   }: RemoveRoleRequirementOrganizationArguments): Promise<
-    rm.IRestResponse<RoleRequirementAPIResponse>
+    SlashauthResponse<RoleRequirementAPIResponse>
   > {
     const urlParams = signQuery({
       input: {

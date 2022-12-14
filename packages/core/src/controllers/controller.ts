@@ -1,14 +1,14 @@
-import * as rm from 'typed-rest-client';
+import { WrappedClient } from '../client';
 
 export class Controller {
   protected client_id: string;
   protected client_secret: string;
-  protected apiClient: rm.RestClient;
+  protected apiClient: WrappedClient;
 
   constructor(
     client_id: string,
     client_secret: string,
-    apiClient: rm.RestClient
+    apiClient: WrappedClient
   ) {
     this.client_id = client_id;
     this.client_secret = client_secret;

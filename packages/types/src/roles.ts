@@ -26,8 +26,10 @@ export type HasRoleTokenArguments = {
 };
 
 export type HasRoleAPIResponse = {
-  hasRole: boolean;
+  hasRole: HasRole;
 };
+
+export type HasRole = boolean;
 
 export type RoleRequirementAPIResponse = {
   id: string;
@@ -57,8 +59,10 @@ export type UpdateRoleRestrictedDataArguments = {
 };
 
 export type RoleRestrictedDataAPIResponse = {
-  data: ObjectMap;
+  data: RoleRestrictedData;
 };
+
+export type RoleRestrictedData = ObjectMap;
 
 export type AddAssignedRoleToUserArguments = {
   userID: string;

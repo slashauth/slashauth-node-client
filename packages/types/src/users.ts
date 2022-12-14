@@ -1,4 +1,4 @@
-import { ObjectMap } from './utils';
+import { ObjectMap, PaginationMetadata } from './utils';
 
 export type UserRecord = {
   clientID: string;
@@ -21,11 +21,11 @@ export type GetUsersArguments = {
   cursor?: string;
 };
 
-export type GetUsersResponse = {
+export type GetUsersResponse = UsersMetadata & {
   data: UserRecord[];
-  hasMore: boolean;
-  cursor?: string;
 };
+
+type UsersMetadata = PaginationMetadata;
 
 export type CreateUserArguments = {
   wallet?: string;

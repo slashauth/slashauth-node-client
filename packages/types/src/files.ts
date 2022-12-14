@@ -1,3 +1,5 @@
+import { PaginationMetadata } from './utils';
+
 export type FileRecord = {
   id: string;
   blobID: string;
@@ -23,19 +25,19 @@ export type GetPresignedURLForFileArguments = {
 
 export type GetPresignedURLForFileResponse = {
   data: {
-    url: string;
+    url: PresignedURLForFile;
   };
 };
+
+export type PresignedURLForFile = string;
 
 export type ListFilesArguments = {
   organizationID?: string;
   cursor?: string;
 };
 
-export type ListFilesResponse = {
+export type ListFilesResponse = ListFilesMetadata & {
   data: FileRecord[];
-  hasMore: boolean;
-  cursor?: string;
 };
 
 export type AddFileArguments = {
@@ -47,6 +49,8 @@ export type AddFileArguments = {
   mimeType: string;
   file: Buffer;
 };
+
+type ListFilesMetadata = PaginationMetadata;
 
 export type CreateFileArguments = {
   organizationID?: string;

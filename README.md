@@ -4,6 +4,8 @@
 
 This package provides a client to Slashauth to use from your node backend. Authorize any wallet within your app with a single API call.
 
+[Learn how to use SlashAuth in your project by reading the docs](https://docs.slashauth.com/)
+
 ## Features
 
 - 🔥 Login and token gating out of the box
@@ -60,7 +62,7 @@ slashauthClient
       clientID: r.clientID,
       address: r.address,
       expiresAt: r.expiresAt,
-    })
+    });
   })
   .catch((e) => console.error(e));
 ```

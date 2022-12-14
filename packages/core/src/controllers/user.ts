@@ -22,7 +22,11 @@ import {
   ValidateTokenArguments,
   ValidateTokenResponse,
 } from '@slashauth/types';
-import { WrappedClient, SlashauthResponse } from '../client';
+import {
+  WrappedClient,
+  SlashauthResponse,
+  SlashauthResponseWithPagination,
+} from '../client';
 import { signBody, signQuery } from '../utils/query';
 import { base64Decode } from '../utils/strings';
 import { Controller } from './controller';
@@ -240,7 +244,9 @@ export class UserController extends Controller {
   async getUsers({
     organizationID,
     cursor,
-  }: GetUsersArguments): Promise<SlashauthResponse<UserRecord[]>> {
+  }: GetUsersArguments): Promise<
+    SlashauthResponseWithPagination<UserRecord[]>
+  > {
     const input: { [key: string]: string } = {};
 
     if (organizationID) {
@@ -270,7 +276,7 @@ export class UserController extends Controller {
           transformResponse<GetUsersResponse, UserRecord[]>(
             (res) => res && res.data
           )(response)[0],
-          { ...metadata, hasMore: data?.hasMore, cursor: data?.cursor },
+          { ...metadata, hasMore: !!data?.hasMore, cursor: data?.cursor },
           err,
         ];
       });

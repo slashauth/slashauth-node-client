@@ -4,6 +4,7 @@ import { OrganizationController } from './controllers/organization';
 import { UserController } from './controllers/user';
 import { FileController } from './controllers/file';
 import { AppController } from './controllers/app';
+import { PaginationMetadata } from '@slashauth/types';
 
 type ResponseMeta<T> = Omit<rm.IRestResponse<T>, 'result'>;
 type ErrorMessage = any;
@@ -11,6 +12,12 @@ type ErrorMessage = any;
 export type SlashauthResponse<ResponseData> = [
   ResponseData | null,
   ResponseMeta<ResponseData>,
+  ErrorMessage | null
+];
+
+export type SlashauthResponseWithPagination<ResponseData> = [
+  ResponseData | null,
+  ResponseMeta<ResponseData> & PaginationMetadata,
   ErrorMessage | null
 ];
 

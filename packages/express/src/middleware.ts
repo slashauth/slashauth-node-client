@@ -37,13 +37,15 @@ export class SlashauthMiddlewareExpress {
           token,
         });
 
-        req.slashauth = {
-          wallet: tokenResp.wallet,
-          userID: tokenResp.userID,
-          isAuthed: true,
-          clientID: tokenResp.clientID,
-          getWalletAddress: tokenResp.getWalletAddress,
-        };
+        if (tokenResp && tokenResp.data) {
+          req.slashauth = {
+            wallet: tokenResp.data.wallet,
+            userID: tokenResp.data.userID,
+            isAuthed: true,
+            clientID: tokenResp.data.clientID,
+            getWalletAddress: tokenResp.data.getWalletAddress,
+          };
+        }
       } catch (err) {}
 
       next();
@@ -59,12 +61,12 @@ export class SlashauthMiddlewareExpress {
     ) => {
       const authHeader = req.headers.authorization || '';
       const token = parseToken(authHeader);
-      const [hasRole] = await this.client.user.hasRoleToken({
+      const { data } = await this.client.user.hasRoleToken({
         role,
         token,
       });
 
-      if (hasRole) {
+      if (data?.hasRole) {
         next();
         return;
       }

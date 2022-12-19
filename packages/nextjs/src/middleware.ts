@@ -7,6 +7,7 @@ export type AuthedNextApiRequest = {
     wallet?: string;
     userID?: string;
     isAuthed?: boolean;
+    clientID?: string;
     getWalletAddress(): Promise<string | null>;
   };
 } & NextApiRequest;
@@ -61,12 +62,15 @@ export class SlashauthMiddlewareNext {
         token,
       });
 
-      req.slashauth = {
-        wallet: tokenResp.wallet,
-        userID: tokenResp.userID,
-        isAuthed: true,
-        getWalletAddress: tokenResp.getWalletAddress,
-      };
+      if (tokenResp && tokenResp.data) {
+        req.slashauth = {
+          wallet: tokenResp.data.wallet,
+          userID: tokenResp.data.userID,
+          isAuthed: true,
+          clientID: tokenResp.data.clientID,
+          getWalletAddress: tokenResp.data.getWalletAddress,
+        };
+      }
     } catch (err) {
       throw err;
     }
@@ -80,13 +84,13 @@ export class SlashauthMiddlewareNext {
       const authHeader = req.headers.authorization || '';
       const token = parseToken(authHeader);
 
-      const [hasRole] = await this.client.user.hasRoleToken({
+      const { data } = await this.client.user.hasRoleToken({
         role,
         token,
       });
 
-      if (hasRole) {
-        return hasRole;
+      if (data) {
+        return data.hasRole;
       }
 
       throw new Error('hasRole did not properly return');

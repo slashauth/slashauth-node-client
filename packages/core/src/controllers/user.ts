@@ -11,7 +11,6 @@ import {
   GetUsersResponse,
   UserRecord,
   HasRoleAPIResponse,
-  HasRole,
   HasRoleArguments,
   HasRoleTokenArguments,
   HasRoleWalletArguments,
@@ -32,19 +31,6 @@ import { base64Decode } from '../utils/strings';
 import { Controller } from './controller';
 import { getBaseURL } from '../utils/url';
 import { transformResponse } from '../utils/client';
-
-// const transformResponse =
-//   <I, O>(
-//     responseMapper: (data: I | undefined) => SlashauthResponse<O>['data']
-//   ) =>
-//   (resp: SlashauthResponse<I>): SlashauthResponse<O> => {
-//     return {
-//       data: responseMapper(resp.data),
-//       error: resp.error,
-//       headers: resp.headers,
-//       statusCode: resp.statusCode,
-//     };
-//   };
 
 // TODO: Need to add:
 // - How do we add a user to an org?

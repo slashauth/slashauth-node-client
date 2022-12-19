@@ -1,6 +1,7 @@
 import { ObjectMap, PaginationMetadata } from './utils';
 
 export type UserRecord = {
+  id: string;
   clientID: string;
   organizationID?: string;
   wallet: string;

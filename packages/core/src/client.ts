@@ -5,10 +5,6 @@ import { UserController } from './controllers/user';
 import { FileController } from './controllers/file';
 import { AppController } from './controllers/app';
 
-// Handle tickets
-// Update demos
-// Publish package
-
 type ErrorMessage = string;
 
 type PageInfo = {

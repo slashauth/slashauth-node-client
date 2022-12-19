@@ -23,7 +23,7 @@ export type SlashauthResponse<ResponseData> = {
 } & Metadata;
 
 export type SlashauthResponseWithPagination<ResponseData> = {
-  data?: {
+  paginatedResponse?: {
     data: ResponseData | PageInfo | null;
     pageInfo: PageInfo;
   };

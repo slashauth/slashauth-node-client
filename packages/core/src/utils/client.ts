@@ -1,10 +1,10 @@
 import { SlashauthResponse } from '../client';
 
 export const transformResponse =
-  <I, O>(
-    responseMapper: (data: I | undefined) => SlashauthResponse<O>['data']
+  <T, U>(
+    responseMapper: (data: T | undefined) => SlashauthResponse<U>['data']
   ) =>
-  (resp: SlashauthResponse<I>): SlashauthResponse<O> => {
+  (resp: SlashauthResponse<T>): SlashauthResponse<U> => {
     return {
       data: responseMapper(resp.data),
       error: resp.error,

@@ -276,7 +276,7 @@ export class UserController extends Controller {
       .then((resp) => {
         if (resp.data) {
           return {
-            data: {
+            paginatedResponse: {
               data: resp.data.data,
               pageInfo: {
                 cursor: resp.data.cursor,

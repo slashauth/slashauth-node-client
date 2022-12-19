@@ -9,11 +9,7 @@ import {
 import { WrappedClient, SlashauthResponse } from '../client';
 import { signQuery, signBody } from '../utils/query';
 import { Controller } from './controller';
-
-const transformResponse =
-  <I, O>(responseMapper: (data: I | null) => SlashauthResponse<O>['0']) =>
-  ([data, ...res]: SlashauthResponse<I>): SlashauthResponse<O> =>
-    [responseMapper(data), ...res];
+import { transformResponse } from '../utils/client';
 
 export class AppController extends Controller {
   constructor(

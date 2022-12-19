@@ -31,11 +31,21 @@ import { signBody, signQuery } from '../utils/query';
 import { base64Decode } from '../utils/strings';
 import { Controller } from './controller';
 import { getBaseURL } from '../utils/url';
+import { transformResponse } from '../utils/client';
 
-const transformResponse =
-  <I, O>(responseMapper: (data: I | null) => SlashauthResponse<O>['0']) =>
-  ([data, ...res]: SlashauthResponse<I>): SlashauthResponse<O> =>
-    [responseMapper(data), ...res];
+// const transformResponse =
+//   <I, O>(
+//     responseMapper: (data: I | undefined) => SlashauthResponse<O>['data']
+//   ) =>
+//   (resp: SlashauthResponse<I>): SlashauthResponse<O> => {
+//     return {
+//       data: responseMapper(resp.data),
+//       error: resp.error,
+//       headers: resp.headers,
+//       statusCode: resp.statusCode,
+//     };
+//   };
+
 // TODO: Need to add:
 // - How do we add a user to an org?
 export class UserController extends Controller {
@@ -49,9 +59,11 @@ export class UserController extends Controller {
 
   async validateToken({
     token,
-  }: ValidateTokenArguments): Promise<ValidateTokenResponse> {
+  }: ValidateTokenArguments): Promise<
+    SlashauthResponse<ValidateTokenResponse>
+  > {
     try {
-      const [_, meta] = await this.apiClient.get<ValidateTokenAPIResponse>(
+      const resp = await this.apiClient.get<ValidateTokenAPIResponse>(
         `/validate_token`,
         {
           queryParameters: {
@@ -63,7 +75,7 @@ export class UserController extends Controller {
         }
       );
 
-      if (!meta || meta.statusCode !== 200) {
+      if (resp.statusCode !== 200) {
         throw new Error('token is not valid');
       }
 
@@ -84,24 +96,30 @@ export class UserController extends Controller {
 
       const getWalletAddress = async (): Promise<string | null> => {
         if (isUserID) {
-          const [user] = await this.getUserByID({ userID: decodedClaims.sub });
+          const { data: user } = await this.getUserByID({
+            userID: decodedClaims.sub,
+          });
 
-          return user && user.wallet;
+          return (user && user.wallet) || null;
         } else {
           // We already have the wallet address, return.
           return decodedClaims.sub;
         }
       };
-
       return {
-        type: decodedClaims.type,
-        userID: isUserID ? decodedClaims.sub : undefined,
-        wallet: isUserID ? decodedClaims.wallet : decodedClaims.sub,
-        clientID: decodedClaims.client_id,
-        issuedAt: decodedClaims.iat,
-        expiresAt: decodedClaims.exp,
-        issuer: decodedClaims.iss,
-        getWalletAddress,
+        data: {
+          type: decodedClaims.type,
+          userID: isUserID ? decodedClaims.sub : undefined,
+          wallet: isUserID ? decodedClaims.wallet : decodedClaims.sub,
+          clientID: decodedClaims.client_id,
+          issuedAt: decodedClaims.iat,
+          expiresAt: decodedClaims.exp,
+          issuer: decodedClaims.iss,
+          getWalletAddress,
+        },
+        error: resp.error,
+        headers: resp.headers,
+        statusCode: resp.statusCode,
       };
     } catch (err) {
       throw err;
@@ -112,7 +130,7 @@ export class UserController extends Controller {
     userID,
     role,
     organizationID,
-  }: HasRoleArguments): Promise<SlashauthResponse<HasRole>> {
+  }: HasRoleArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = signQuery({
@@ -126,18 +144,18 @@ export class UserController extends Controller {
 
     const url = `${getBaseURL(this.client_id, organizationID)}/has_role`;
 
-    return await this.apiClient
+    return this.apiClient
       .get<HasRoleAPIResponse>(url, {
         queryParameters: { params: urlParams },
       })
-      .then(transformResponse((res) => res && res.hasRole));
+      .then(transformResponse((res) => res));
   }
 
   async hasRoleWallet({
     address,
     role,
     organizationID,
-  }: HasRoleWalletArguments): Promise<SlashauthResponse<HasRole>> {
+  }: HasRoleWalletArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = signQuery({
@@ -155,14 +173,14 @@ export class UserController extends Controller {
       .get<HasRoleAPIResponse>(url, {
         queryParameters: { params: urlParams },
       })
-      .then(transformResponse((res) => res && res.hasRole));
+      .then(transformResponse((res) => res));
   }
 
   async hasRoleToken({
     token,
     role,
     organizationID,
-  }: HasRoleTokenArguments): Promise<SlashauthResponse<HasRole>> {
+  }: HasRoleTokenArguments): Promise<SlashauthResponse<HasRoleAPIResponse>> {
     const encodedRole = Buffer.from(role, 'utf8').toString('base64');
 
     const urlParams = {
@@ -186,7 +204,7 @@ export class UserController extends Controller {
           params: urlParams,
         },
       })
-      .then(transformResponse((res) => res && res.hasRole));
+      .then(transformResponse((res) => res));
   }
 
   async getOrgMemberships({
@@ -269,16 +287,27 @@ export class UserController extends Controller {
           params: urlParams,
         },
       })
-      .then((response) => {
-        const [data, metadata, err] = response;
-
-        return [
-          transformResponse<GetUsersResponse, UserRecord[]>(
-            (res) => res && res.data
-          )(response)[0],
-          { ...metadata, hasMore: !!data?.hasMore, cursor: data?.cursor },
-          err,
-        ];
+      .then((resp) => {
+        if (resp.data) {
+          return {
+            data: {
+              data: resp.data.data,
+              pageInfo: {
+                cursor: resp.data.cursor,
+                hasMore: resp.data.hasMore,
+              },
+            },
+            error: resp.error,
+            headers: resp.headers,
+            statusCode: resp.statusCode,
+          };
+        } else {
+          return {
+            error: resp.error,
+            headers: resp.headers,
+            statusCode: resp.statusCode,
+          };
+        }
       });
   }
 

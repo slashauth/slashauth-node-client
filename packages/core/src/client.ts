@@ -4,22 +4,34 @@ import { OrganizationController } from './controllers/organization';
 import { UserController } from './controllers/user';
 import { FileController } from './controllers/file';
 import { AppController } from './controllers/app';
-import { PaginationMetadata } from '@slashauth/types';
 
-type ResponseMeta<T> = Omit<rm.IRestResponse<T>, 'result'>;
-type ErrorMessage = any;
+// Handle tickets
+// Update demos
+// Publish package
 
-export type SlashauthResponse<ResponseData> = [
-  ResponseData | null,
-  ResponseMeta<ResponseData>,
-  ErrorMessage | null
-];
+type ErrorMessage = string;
 
-export type SlashauthResponseWithPagination<ResponseData> = [
-  ResponseData | null,
-  ResponseMeta<ResponseData> & PaginationMetadata,
-  ErrorMessage | null
-];
+type PageInfo = {
+  cursor?: string;
+  hasMore: boolean;
+};
+
+type Metadata = {
+  error: ErrorMessage | null;
+  headers: Object;
+  statusCode: number;
+};
+
+export type SlashauthResponse<ResponseData> = {
+  data?: ResponseData;
+} & Metadata;
+
+export type SlashauthResponseWithPagination<ResponseData> = {
+  data?: {
+    data: ResponseData | PageInfo | null;
+    pageInfo: PageInfo;
+  };
+} & Metadata;
 
 type TypeOfClassMethod<T, M extends keyof T> = T[M] extends Function
   ? T[M]
@@ -65,16 +77,22 @@ export class SlashauthClient {
       <M>(fn: (...args: any[]) => Promise<rm.IRestResponse<any>>) =>
       <T>(...args: any[]): Promise<SlashauthResponse<T>> =>
         fn.apply(rawApiClient, args).then(
-          (res) => [
-            res.result,
-            { headers: res.headers, statusCode: res.statusCode },
-            null,
-          ],
-          (err) => [
-            null,
-            { headers: err['responseHeaders'], statusCode: err['statusCode'] },
-            err.message,
-          ]
+          (res) => {
+            return {
+              data: res.result,
+              error: null,
+              headers: res.headers,
+              statusCode: res.statusCode,
+            };
+          },
+          (err) => {
+            return {
+              data: undefined,
+              error: err.result.error,
+              headers: err['responseHeaders'],
+              statusCode: err['statusCode'],
+            };
+          }
         );
 
     const apiClient = {

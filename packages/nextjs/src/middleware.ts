@@ -58,17 +58,17 @@ export class SlashauthMiddlewareNext {
       const authHeader = req.headers.authorization || '';
       const token = parseToken(authHeader);
 
-      const tokenResp = await this.client.user.validateToken({
+      const { data } = await this.client.user.validateToken({
         token,
       });
 
-      if (tokenResp && tokenResp.data) {
+      if (data) {
         req.slashauth = {
-          wallet: tokenResp.data.wallet,
-          userID: tokenResp.data.userID,
+          wallet: data.wallet,
+          userID: data.userID,
           isAuthed: true,
-          clientID: tokenResp.data.clientID,
-          getWalletAddress: tokenResp.data.getWalletAddress,
+          clientID: data.clientID,
+          getWalletAddress: data.getWalletAddress,
         };
       }
     } catch (err) {

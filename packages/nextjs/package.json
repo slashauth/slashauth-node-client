@@ -1,6 +1,6 @@
 {
   "name": "@slashauth/nextjs",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,7 +30,7 @@
     "typescript": "^4.7.3"
   },
   "dependencies": {
-    "@slashauth/node-client": "^0.10.0",
+    "@slashauth/node-client": "^0.11.0",
     "next": "^12.3.1"
   }
 }

@@ -30,11 +30,7 @@ import { checkBlobStatus } from '../utils/strings';
 import { getBaseURL } from '../utils/url';
 
 import { Controller } from './controller';
-
-const transformResponse =
-  <I, O>(responseMapper: (data: I | null) => SlashauthResponse<O>['0']) =>
-  ([data, ...res]: SlashauthResponse<I>): SlashauthResponse<O> =>
-    [responseMapper(data), ...res];
+import { transformResponse } from '../utils/client';
 
 export class FileController extends Controller {
   constructor(
@@ -129,16 +125,27 @@ export class FileController extends Controller {
 
     return this.apiClient
       .get<ListFilesResponse>(url, { queryParameters: { params: urlParams } })
-      .then((response) => {
-        const [data, metadata, err] = response;
-
-        return [
-          transformResponse<ListFilesResponse, FileRecord[]>(
-            (res) => res && res.data
-          )(response)[0],
-          { ...metadata, hasMore: !!data?.hasMore, cursor: data?.cursor },
-          err,
-        ];
+      .then((resp) => {
+        if (resp.data) {
+          return {
+            paginatedResponse: {
+              data: resp.data.data,
+              pageInfo: {
+                cursor: resp.data.cursor,
+                hasMore: resp.data.hasMore,
+              },
+            },
+            error: resp.error,
+            headers: resp.headers,
+            statusCode: resp.statusCode,
+          };
+        } else {
+          return {
+            error: resp.error,
+            headers: resp.headers,
+            statusCode: resp.statusCode,
+          };
+        }
       });
   }
 
@@ -151,18 +158,18 @@ export class FileController extends Controller {
     mimeType,
     file,
   }: AddFileArguments): Promise<SlashauthResponse<FileRecord>> {
-    const [blobUpload] = await this.createBlobUpload({
+    const { data } = await this.createBlobUpload({
       organizationID,
       wallet: userID,
       mimeType,
       fileSize: file.length, // TODO: Change this
     });
 
-    if (!blobUpload) {
+    if (!data) {
       throw new Error('Failed to upload file');
     }
 
-    const { signedUrl: uploadURL, id } = blobUpload;
+    const { signedUrl: uploadURL, id } = data;
 
     await axios({
       method: 'PUT',

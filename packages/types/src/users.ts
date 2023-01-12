@@ -6,6 +6,8 @@ export type UserRecord = {
   organizationID?: string;
   wallet: string;
   nickname?: string;
+  name?: string;
+  defaultProfileImage?: string;
   roles: string[];
   metadata?: ObjectMap;
   createdAt: string;
@@ -33,6 +35,8 @@ export type CreateUserArguments = {
   email?: string;
   phoneNumber?: string;
   nickname?: string;
+  name?: string;
+  defaultProfileImage?: string;
   metadata?: ObjectMap;
 };
 

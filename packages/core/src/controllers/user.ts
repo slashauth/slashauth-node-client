@@ -302,6 +302,8 @@ export class UserController extends Controller {
     email,
     phoneNumber,
     nickname,
+    name,
+    defaultProfileImage,
     metadata,
   }: CreateUserArguments): Promise<SlashauthResponse<UserRecord>> {
     const body = signBody({
@@ -310,6 +312,8 @@ export class UserController extends Controller {
         email,
         phoneNumber,
         nickname,
+        name,
+        defaultProfileImage,
         metadata,
       },
       secret: this.client_secret,
